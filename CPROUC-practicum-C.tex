@@ -101,36 +101,48 @@
 \bookfancy
 \fancypagestyle{plain}{\bookfancy}
 
+% Used in a Tikz picture
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+% Color of the university logo
+\definecolor{thuasgreen}{RGB}{158,167,0}
+
+
+%% Use xcolor
+\usepackage{xcolor}
 %% Use textcomp for upright quotes in listings
 \usepackage{textcomp}
 %% Use computer code listings
 \usepackage{listings}
 \makeatletter
 %% Replace \char32 with U-form vrule/hrule to match the tab char
-\AtBeginDocument{%
-\def\lst@visiblespace{\kern.06em\hbox{\vrule\@height.3ex}%
-                      \hrulefill\hbox{\vrule\@height.3ex}}}
-\makeatother
+%\AtBeginDocument{%
+%\def\lst@visiblespace{\kern.06em\hbox{\vrule\@height.3ex}%
+%                      \hrulefill\hbox{\vrule\@height.3ex}}}
+%\makeatother
 
-% Used in a Tikz picture
-\definecolor{dkgreen}{rgb}{0,0.6,0}
-% Color of the university logo
-\definecolor{thuasgreen}{RGB}{158,167,0}
-% Colors used in VS listings
+% Colors used in VS community listings, standard
 \definecolor{comment}{RGB}{0,128,0}
 \definecolor{controlkeyword}{RGB}{143,8,106}
 \definecolor{otherkeyword}{RGB}{0,0,255}
-\definecolor{number}{RGB}{240,0,240}
+% numbers are not colorized
+%\definecolor{number}{RGB}{240,0,240}
 \definecolor{character}{RGB}{163,21,21}
 \definecolor{string}{RGB}{163,21,21}
 \definecolor{preprocessor}{RGB}{128,128,128}
 \definecolor{function}{RGB}{116,83,31}
+\definecolor{usertype}{RGB}{43,145,175}
+\definecolor{macro}{RGB}{138,27,255}
+\definecolor{identifier}{RGB}{31,55,127}
 
-%% Define listing style for VHDL
+%% Define listing style for C, Visual Studio Community 2019 style
 \lstset{%
   %% Basic setup
   language=C,
   basicstyle=\small\ttfamily,
+  stringstyle=\color{string},
+  commentstyle=\color{comment},
+  identifierstyle=\color{black},
+  % keywordstyle see below
   %% Line numbers
   numbers=none,
   numberstyle=\tiny\color{gray},
@@ -140,51 +152,72 @@
   showspaces=false,
   showstringspaces=false,
   showtabs=false,
+  tabsize=4,
   %% Lines above and below
   frame=lines,
   rulecolor=\color{black},
   %% Misc other stuff
-  tabsize=4,
   captionpos=b,
   breaklines=true,
   breakatwhitespace=false,
   title=\lstname,
+%  prebreak=\mbox{\textcolor{red}{$\hookleftarrow$}\space},
   postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
   upquote=true,
   aboveskip=2.5ex,
   belowskip=-2.2ex,
-  escapeinside={(*}{*)},
+  escapeinside={(*@}{@*)},
   moredelim=[s][\textcolor{character}]{'}{'},
-  %moredelim=[s][\textcolor{character}]{<}{>},
-  %% Control keywords
-  deletekeywords={int,char,void,double,static,const,unsigned,signed,volatile},
+  %% Control keywords, remove the declaration keywords
+  deletekeywords={int,char,void,double,static,const,unsigned,signed,volatile,auto,extern,typedef,enum,long,struct,short},
   keywordstyle=\color{controlkeyword},
   %% Declaration keywords
-  keywords=[2]{int,char,void,double,static,const,unsigned,signed,volatile},
+  keywords=[2]{int,char,void,double,static,const,unsigned,signed,volatile,auto,extern,typedef,enum,long,struct,short},
   keywordstyle=[2]{\color{otherkeyword}},
   %% Trick: functions
-  keywords=[3]{scanf,printf,getchar,sqrt,pow,main,fib,leesCijfer,fflush,exit,malloc,free,realloc,catalan,faculteit,catalanRecursief,collatzSteps,max2,leesGetal,gemiddelde,kgv,ggd,leesEnBerekenSom,leesEnBerekenMod9,isprime,isisolatedprime,sinc,aantal_delers,reverse,strrev,is_palindroom,controleerNedEuroID,doorsnede,uniek,rlecompress,roll_dice,rand,stringreplace,scanf_s,getoneline},
+  keywords=[3]{main,fopen,freopen,fflush,fclose,remove,rename,tmpfile,tmpnam,setvbuf,setbuf,fprintf,printf,sprintf,snprintf,vprintf,vfprintf,vsprintf,fscanf,scanf,sscanf,fgetc,fgets,fputc,fputs,getc,getchar,gets,putc,putchar,puts,ungetc,fread,fwrite,fseek,ftell,rewind,fgetpos,fsetpos,clearerr,feof,ferror,perror,isalnum,isalpha,iscntrl,isdigit,isgraph,islower,isprint,ispunct,isspace,isupper,isxdigit,toupper,tolower,strcpy,strncpy,strcat,strncat,strcmp,strncmp,strchr,strrchr,strspn,strcspn,strpbrk,strstr,strlen,strerror,strtok,memcpy,memmove,memcmp,memchr,memset,sin,cos,tan,asin,acos,atan,atan2,sinh,cosh,tanh,exp,log,log10,pow,sqrt,ceil,floor,fabs,ldexp,frexp,modf,fmod,atof,atoi,atol,strtod,strtol,strtoul,rand,srand,calloc,malloc,realloc,free,abort,exit,atexit,system,getenv,bsearch,qsort,abs,labs,div,ldiv,assert,va_start,va_arg,va_end,setjmp,longjmp,signal,raise,clock,time,difftime,mktime,asctime,gmtime,localtime,strftime,erf,erfc,gamma,hypot,fileno,isascii,strcasecmp,strncasecmp,toascii,va_copy},
   keywordstyle=[3]{\color{function}},
-  %% Trick: header files, the < and > are not colorized
+  %% Trick: system header files, the < and > are not colorized
   alsoletter={.},
-  keywords=[4]{stdio.h,math.h,malloc.h,string.h},
+  keywords=[4]{assert.h,complex.h,ctype.h,errno.h,fenv.h,float.h,inttypes.h,iso646.h,limits.h,locale.h,math.h,setjmp.h,signal.h,stdalign.h,stdarg.h,stdatomic.h,stdbool.h,stddef.h,stdint.h,stdio.h,stdlib.h,stdnoreturn.h,string.h,tgmath.h,threads.h,time.h,uchar.h,wchar.h,wctype.h},
   keywordstyle=[4]{\color{string}},
-  %% Trick: preprocessor commands
-  literate=*{\#include}{{\textcolor{preprocessor}{\#include}}}7
-            {\#define}{{\textcolor{preprocessor}{\#define}}}6
-            {\#undef}{{\textcolor{preprocessor}{\#undef}}}5
-            {\#ifdef}{{\textcolor{preprocessor}{\#ifdef}}}5
-            {\#ifndef}{{\textcolor{preprocessor}{\#ifndef}}}6
-            {\#else}{{\textcolor{preprocessor}{\#else}}}4
-            {\#elif}{{\textcolor{preprocessor}{\#elif}}}4
-            {\#endif}{{\textcolor{preprocessor}{\#endif}}}5
-            {\#pragma}{{\textcolor{preprocessor}{\#pragma}}}6
-            {\#error}{{\textcolor{preprocessor}{\#error}}}5
-            {\#if}{{\textcolor{preprocessor}{\#if}}}2,
-  %% Comments
-  stringstyle=\color{string},
-  commentstyle=\itshape\color{comment},
+  %% System defined type, short list from stdint.h
+  keywords=[5]{int8_t,int16_t,int32_t,int64_t,uint8_t,uint16_t,uint32_t,uint64_t,FILE,size_t,div_t,ldiv_t,va_list,clock_t,time_t},
+  keywordstyle=[5]{\color{usertype}},
+  %% Some known macros
+  keywords=[6]{NULL,_MSC_VER,__FILE__,__LINE__,__DATE__,__STDC__,__cplusplus,__COUNTER__,EOF},
+  keywordstyle=[6]{\color{macro}},
+  %%
+  %% Trick: user defined functions. Really, should be done by some simple macro...
+  keywordstyle=[10]{\color{function}},
+  %% Trick: user defined typedef. Really, should be done by some simple macro...
+  keywordstyle=[11]{\color{usertype}},
+  %% Trick: user defined macros. Really, should be done by some simple macro...
+  keywordstyle=[12]{\color{macro}},
+  %% Trick: extra system header files. Really, should be done by some simple macro...
+  keywordstyle=[13]{\color{string}},
+  %% Not-so-nice Trick: preprocessor commands.
+  literate=*{\#include}{{\textcolor{preprocessor}{\#include}}}8
+            {\#define}{{\textcolor{preprocessor}{\#define}}}7
+            {\#undef}{{\textcolor{preprocessor}{\#undef}}}6
+            {\#if}{{\textcolor{preprocessor}{\#if}}}3
+            {\#ifdef}{{\textcolor{preprocessor}{\#ifdef}}}6
+            {\#ifndef}{{\textcolor{preprocessor}{\#ifndef}}}7
+            {\#else}{{\textcolor{preprocessor}{\#else}}}5
+            {\#elif}{{\textcolor{preprocessor}{\#elif}}}5
+            {\#endif}{{\textcolor{preprocessor}{\#endif}}}6
+            {\#pragma}{{\textcolor{preprocessor}{\#pragma}}}7
+            {\#error}{{\textcolor{preprocessor}{\#error}}}6,
 }
+
+%% Set the extra <whatever> to colors...
+\lstset{
+  keywords=[10]{fib,leesCijfer,fflush,exit,malloc,free,realloc,catalan,faculteit,catalanRecursief,collatzSteps,max2,leesGetal,gemiddelde,kgv,ggd,leesEnBerekenSom,leesEnBerekenMod9,isprime,isisolatedprime,sinc,aantal_delers,reverse,strrev,is_palindroom,controleerNedEuroID,doorsnede,uniek,rlecompress,roll_dice,rand,stringreplace,scanf_s,getoneline},  % User functions
+  keywords=[11]{},  % Typedef'd types
+  keywords=[12]{},  % Macros
+  keywords=[13]{},  % System header files
+}
+
 
 %% Hyper links in references and URLs
 \PassOptionsToPackage{hyphens}{url}
@@ -1057,8 +1090,8 @@ Alle spanningen in de schakeling zijn in de beginsituatie 0 V.
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[]
-\draw [<->,shorten >=5pt, shorten <=5pt] (0,-2) -- (0,0);
-\draw [<->,shorten >=5pt, shorten <=5pt] (3.5,-2) -- (3.5,0);
+\draw [latex-latex,shorten >=5pt, shorten <=5pt] (0,-2) -- (0,0);
+\draw [latex-latex,shorten >=5pt, shorten <=5pt] (3.5,-2) -- (3.5,0);
 \node at (-0.5,-1) {$U_{in}$};
 \node at (4.0,-1) {$U_{uit}$};
 \draw (0,0) to [R=$R$,o-*] (2,0);
