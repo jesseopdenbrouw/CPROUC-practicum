@@ -11,6 +11,7 @@
 %%   Please mail your comments to: J.E.J.opdenBrouw@hhs.nl
 %%
 %%   Compile this document with {xe|lua|pdf}latex at your choice
+%%   {xe|lua}latex needs Calibri and Cambra-math fonts
 %%
 %%   Beware that this document is in Dutch
 
@@ -30,7 +31,7 @@
 %% mdframed loads tikz
 \usepackage[framemethod=tikz]{mdframed}
 \usepackage{dingbat}
-\usepackage[european,betterproportions]{circuitikz}
+\usepackage[european,betterproportions,americanvoltages]{circuitikz}
 \usepackage{pgfplots}
 \usetikzlibrary{backgrounds}
 \usepackage[left=1.2in,right=1.2in,top=1in,bottom=1.5in,footskip=0.4in]{geometry}
@@ -114,11 +115,11 @@
 %% Use computer code listings
 \usepackage{listings}
 \makeatletter
-%% Replace \char32 with U-form vrule/hrule to match the tab char
-%\AtBeginDocument{%
-%\def\lst@visiblespace{\kern.06em\hbox{\vrule\@height.3ex}%
-%                      \hrulefill\hbox{\vrule\@height.3ex}}}
-%\makeatother
+% Replace \char32 with U-form vrule/hrule to match the tab char
+\AtBeginDocument{%
+\def\lst@visiblespace{\kern.06em\hbox{\vrule\@height.3ex}%
+                      \hrulefill\hbox{\vrule\@height.3ex}}}
+\makeatother
 
 % Colors used in VS community listings, standard
 \definecolor{comment}{RGB}{0,128,0}
@@ -137,11 +138,12 @@
 %% Define listing style for C, Visual Studio Community 2019 style
 \lstset{%
   %% Basic setup
-  language=C,
+  language=[ANSI]C,
   basicstyle=\small\ttfamily,
   stringstyle=\color{string},
   commentstyle=\color{comment},
   identifierstyle=\color{black},
+  directivestyle=\color{preprocessor},
   % keywordstyle see below
   %% Line numbers
   numbers=none,
@@ -164,15 +166,15 @@
 %  prebreak=\mbox{\textcolor{red}{$\hookleftarrow$}\space},
   postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
   upquote=true,
-  aboveskip=2.5ex,
-  belowskip=-2.2ex,
+%  aboveskip=2.5ex,
+%  belowskip=-2.2ex,
   escapeinside={(*@}{@*)},
   moredelim=[s][\textcolor{character}]{'}{'},
   %% Control keywords, remove the declaration keywords
-  deletekeywords={int,char,void,double,static,const,unsigned,signed,volatile,auto,extern,typedef,enum,long,struct,short},
+  deletekeywords={int,char,void,double,static,const,unsigned,signed,volatile,auto,extern,typedef,enum,long,struct,short,register,union,float,sizeof},
   keywordstyle=\color{controlkeyword},
   %% Declaration keywords
-  keywords=[2]{int,char,void,double,static,const,unsigned,signed,volatile,auto,extern,typedef,enum,long,struct,short},
+  keywords=[2]{int,char,void,double,static,const,unsigned,signed,volatile,auto,extern,typedef,enum,long,struct,short,register,union,float,sizeof},
   keywordstyle=[2]{\color{otherkeyword}},
   %% Trick: functions
   keywords=[3]{main,fopen,freopen,fflush,fclose,remove,rename,tmpfile,tmpnam,setvbuf,setbuf,fprintf,printf,sprintf,snprintf,vprintf,vfprintf,vsprintf,fscanf,scanf,sscanf,fgetc,fgets,fputc,fputs,getc,getchar,gets,putc,putchar,puts,ungetc,fread,fwrite,fseek,ftell,rewind,fgetpos,fsetpos,clearerr,feof,ferror,perror,isalnum,isalpha,iscntrl,isdigit,isgraph,islower,isprint,ispunct,isspace,isupper,isxdigit,toupper,tolower,strcpy,strncpy,strcat,strncat,strcmp,strncmp,strchr,strrchr,strspn,strcspn,strpbrk,strstr,strlen,strerror,strtok,memcpy,memmove,memcmp,memchr,memset,sin,cos,tan,asin,acos,atan,atan2,sinh,cosh,tanh,exp,log,log10,pow,sqrt,ceil,floor,fabs,ldexp,frexp,modf,fmod,atof,atoi,atol,strtod,strtol,strtoul,rand,srand,calloc,malloc,realloc,free,abort,exit,atexit,system,getenv,bsearch,qsort,abs,labs,div,ldiv,assert,va_start,va_arg,va_end,setjmp,longjmp,signal,raise,clock,time,difftime,mktime,asctime,gmtime,localtime,strftime,erf,erfc,gamma,hypot,fileno,isascii,strcasecmp,strncasecmp,toascii,va_copy},
@@ -185,7 +187,7 @@
   keywords=[5]{int8_t,int16_t,int32_t,int64_t,uint8_t,uint16_t,uint32_t,uint64_t,FILE,size_t,div_t,ldiv_t,va_list,clock_t,time_t},
   keywordstyle=[5]{\color{usertype}},
   %% Some known macros
-  keywords=[6]{NULL,_MSC_VER,__FILE__,__LINE__,__DATE__,__STDC__,__cplusplus,__COUNTER__,EOF},
+  keywords=[6]{NULL,_MSC_VER,__FILE__,__LINE__,__DATE__,__STDC__,__cplusplus,__COUNTER__,EOF,__STDC_HOSTED__,__STDC_NO_ATOMICS__,__STDC_NO_COMPLEX__,__STDC_NO_THREADS__,__STDC_NO_VLA__,__STDC_VERSION__,__STDCPP_THREADS__,__TIME__},
   keywordstyle=[6]{\color{macro}},
   %%
   %% Trick: user defined functions. Really, should be done by some simple macro...
@@ -196,18 +198,6 @@
   keywordstyle=[12]{\color{macro}},
   %% Trick: extra system header files. Really, should be done by some simple macro...
   keywordstyle=[13]{\color{string}},
-  %% Not-so-nice Trick: preprocessor commands.
-  literate=*{\#include}{{\textcolor{preprocessor}{\#include}}}8
-            {\#define}{{\textcolor{preprocessor}{\#define}}}7
-            {\#undef}{{\textcolor{preprocessor}{\#undef}}}6
-            {\#if}{{\textcolor{preprocessor}{\#if}}}3
-            {\#ifdef}{{\textcolor{preprocessor}{\#ifdef}}}6
-            {\#ifndef}{{\textcolor{preprocessor}{\#ifndef}}}7
-            {\#else}{{\textcolor{preprocessor}{\#else}}}5
-            {\#elif}{{\textcolor{preprocessor}{\#elif}}}5
-            {\#endif}{{\textcolor{preprocessor}{\#endif}}}6
-            {\#pragma}{{\textcolor{preprocessor}{\#pragma}}}7
-            {\#error}{{\textcolor{preprocessor}{\#error}}}6,
 }
 
 %% Set the extra <whatever> to colors...
@@ -633,9 +623,7 @@ Opmerkingen kunnen worden gemaild naar \href{mailto:J.E.J.opdenBrouw@hhs.nl}{J.E
 \section*{Aanbevolen werkwijze}
 \addcontentsline{toc}{section}{Aanbevolen werkwijze}
 
-Beste student,
-
-Inmiddels hebben wij dit vak al een aantal jaar gegeven en gezien wat voor gedrag jullie vertonen tijdens het volgen van deze practica. Volg onderstaande werkwijze als je geïnteresseerd bent in aanzienlijk efficiënter en sneller tot een voldoende eindresultaat te komen. Het is natuurlijk aan jou om deze aanbevolen werkwijze te volgen:
+Volg onderstaande werkwijze als je geïnteresseerd bent in aanzienlijk efficiënter en sneller tot een voldoende eindresultaat te komen. Het is natuurlijk aan jou om deze aanbevolen werkwijze te volgen:
 
 \begin{enumerate}[label=\textbf{\arabic*.}]
 \item \textbf{Lees goed de opdracht}\\
@@ -652,6 +640,7 @@ Als je niet begrijpt waar het programma fout gaat, steek dan niet direct je hand
 Nog een opmerking moet hier gesteld worden: het gebruik van het goto-statement is niet toegestaan, onder het mom van ``gotos are the root of all evil''.
 \item \textbf{Gebruik geen spaties en vreemde tekens in bestandsnamen, projectnamen en dergelijke}\\
 Windows heeft de onhebbelijke eigenschap om bestandsnamen met spaties toe te staan. Doe het niet! Het leest niet lekker en programma’s kunnen niet (goed) functioneren, zeker in combinatie met command line argumenten.
+\item \textbf{Maak gebruik van het boek}\\ Het boek kan je vinden op \url{https://github.com/jesseopdenbrouw/book_c}. Open de PDF.
 \end{enumerate}
 
 
@@ -681,7 +670,7 @@ Die-hard Linux-gebruikers kunnen natuurlijk ook in een terminal de GNU-C-compile
 
 \subsection{Installeren Visual Studio Community en invoeren eerste programma}
 
-Voer de handelingen uit in bijlage~\ref{sec:installatievsc}.
+Voer de handelingen uit in bijlage~\ref{sec:installatievsc}. Als je liever Code::Blocks gebruikt, zie bijlage~\ref{sec:installcodeblocks}.
 
 \subsection{Programma wijzigen}
 Wijzig de broncode van het programma dat je in de introductie hebt gemaakt als volgt:
@@ -795,8 +784,14 @@ int main(void) {
 \subsection{Kwadraten en derde machten}
 Schrijf een programma die de kwadraten en derde machten van 1 t/m 10 afdrukt. Gebruik een \lstinline|for|-statement voor het opzetten van de herhaling.
 
+\subsection{Tafel van 12}
+Schrijf een programma dat de tafel van 12 afdrukt. Maar gebruik van een \lstinline|for|-statement voor het opzetten van de herhaling.
+
+\subsection{Achterstevoren}
+Schrijf een programma dat de gebruiker vraagt om een positief geheel getal in te voeren. Druk vervolgens de cijfers van dat getal achterstevoren af. Dus 12345 wordt 54321.
+
 \subsection{Deelbaar door 9}
-Schrijf een programma dat alle getallen tussen 100 en 200 afdrukt, die deelbaar zijn door 9. Gebruik een \lstinline|for|-statement voor het opzetten van de herhaling.
+Schrijf een programma dat alle getallen tussen 100 en 200 afdrukt, die deelbaar zijn door 9. Gebruik een \lstinline|for|-statement voor het opzetten van de herhaling. Doe dit zonder gebruik te maken van een beslissingsstatement (\lstinline|if|).
 
 \subsection{Harmonische reeks}
 Schrijf een programma dat de reciproken van 1 t/m 100 bij elkaar optelt. Dat is dus:
@@ -807,8 +802,32 @@ Schrijf een programma dat de reciproken van 1 t/m 100 bij elkaar optelt. Dat is 
 
 Gebruik een \lstinline|for|-statement voor het opzetten van de herhaling.
  
+\subsection{Driehoek van Floyd}
+Schrijf een programma dat een positief geheel getal inleest en vervolgens de driehoek van Floyd afdrukt. In deze driehoek worden getallen oplopend afgedrukt, beginnend bij 1, steeds één getal meer per rij. Een voorbeeld van de driehoek voor invoer van het getal 6 is hieronder gegeven.
+
+\begin{lstlisting}[style=,literate=]
+Geef positief getal: 6
+ 1
+ 2  3
+ 4  5  6
+ 7  8  9 10
+11 12 13 14 15
+16 17 18 19 20 21
+\end{lstlisting}
+
 \subsection{Inwendig en uitwendig vermogen}
-Een spanningsbron kan worden voorgesteld door een ideale spanningsbron met de spanning $U_b$ en een inwendige weerstand $R_i$. Aan deze bron wordt een uitwendige weerstand $R_u$ geplaatst zodat er een stroom $I_b$ gaat vloeien. Op het moment dat er een stroom vloeit, verbruiken de bron (met de inwendige weerstand) en de uitwendige weerstand vermogen.
+Een spanningsbron kan worden voorgesteld door een ideale spanningsbron met de spanning $U_b$ en een inwendige weerstand $R_i$. Aan deze bron wordt een uitwendige weerstand $R_u$ geplaatst zodat er een stroom $I_b$ gaat vloeien. Op het moment dat er een stroom vloeit, verbruiken de inwendige weerstand en de uitwendige weerstand vermogen. De bron levert het vermogen. Een voorstelling is te zien in onderstaande figuur.
+
+\begin{figure}[!ht]
+\centering
+\begin{circuitikz}
+\draw (2,0) to[V, v_=$U_b$] ++(0,-2);
+\draw (2,0) to[R=$R_i$] ++(2,0)
+            to[short, i=$I_b$] ++(1,0)
+            to[R=$R_u$] ++(0,-2)
+            to[short, -.] (2,-2);
+\end{circuitikz}
+\end{figure}
 
 Ontwerp een programma dat de gebruiker vraagt de waarden van $U_b$ en $R_i$ in te voeren. Het programma berekent voor de waarden $R_u = R_i$ t/m $R_u = 10\cdot Ri$ steeds de stroom $I_b$ en de vermogens verbruikt in $R_i$ (de bron) en $R_u$. Zorg ervoor dat het programma goed omgaat met $R_i \leq 0$ door gebruik te maken van een \lstinline|do while| loop.
 
@@ -1294,7 +1313,6 @@ Ontwerp een programma dat drie gehele getallen inleest het het grootste van de d
 \subsection{Verandering van ingevoerde getallen}
 Ontwerp een programma dat aangeeft of een ingevoerd geheel getal \textsl{veranderd} is ten opzichte van het vorige ingevoerde getal. Let op: het eerste ingevoerde getal heeft geen voorganger dus kan niet bepaald worden of het veranderd is. Het getal 0 zorgt ervoor dat het programma stopt.
 
-
 \subsection{Even en oneven}
 Ontwerp een programma dat de gebruiker vraagt om positieve gehele getallen in te voeren. Dit programma moet net zo lang getallen inlezen totdat het getal 0 wordt ingevoerd. Hierna moet het programma afdrukken hoeveel even en hoeveel oneven getallen door de gebruiker zijn ingevoerd. Als de gebruiker negatieve getallen invoert dan moeten die niet worden meegeteld. Bedenk goed met welke invoerreeksen je dit programma moet testen om de correcte werking aan te tonen. Laat de invoerreeksen die je hebt gebruikt ook aan je practicumdocent zien.
 
@@ -1306,6 +1324,14 @@ Verzin zelf een aantal testreeksen. Zorg dat je deze testdata bij de hand hebt t
 Ontwerp een programma dat de gebruiker vraagt om positieve gehele getallen in te voeren met een maximum van 10. Dit programma moet net zo lang getallen inlezen totdat het getal 0 wordt ingevoerd. Hierna moet het programma afdrukken hoeveel voldoendes (6$\cdots$10) en hoeveel onvoldoendes (1$\cdots$5) door de gebruiker zijn ingevoerd. Als de gebruiker negatieve getallen of getallen groter dan 10 invoert dan moeten die door het programma niet worden meegeteld. Bedenk goed met welke invoerreeksen je dit programma moet testen om de correcte werking aan te tonen. Laat de invoerreeksen die je hebt gebruikt ook aan je practicumdocent zien.
 
 Verzin zelf een aantal testreeksen. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
+
+\subsection{Aantal ingevoerde cijfers afdrukken}
+Schrijf een programma dat om ingevoerde cijfers (0 t/m 9) vraagt en bijhoudt hoe vaak elk cijfer is ingevoerd. Na invoer van het speciale cijfer $-1$ moeten de aantallen van de ingevoerde cijfers netjes worden afgedrukt.
+
+\subsection{PIN-code raden}
+Schrijf een programma dat de gebruiker vraagt om een 4-cijferige PIN-code correct in te voeren. De gebruiker mag maximaal drie keer invoeren. Als na de derde keer een verkeerde PIN-code is ingevoerd, moet een foutmelding op het scherm volgen. Als de PIN-code correct is ingevoerd, moet dat natuurlijk gemeld worden.
+
+Voor het genereren van een willekeurig getal tussen 0 en 9999, kan de functie \lstinline|rand| gebruikt worden. Zie voor een eenvoudige uitleg \url{https://www.geeksforgeeks.org/rand-and-srand-in-ccpp/}.
 
 \subsection{Overwerk}
 Overwerk kan vervelend zijn maar in veel gevallen levert het extra salaris op. De nominale werkweek in Nederland is 40 uur. Daarboven wordt (vaak) gesproken over overwerk. Tussen 40 uur en 50 uur wordt gesproken van matig overwerk, boven de 50 uur wordt gesproken van veel overwerk.
@@ -1416,7 +1442,7 @@ Zoek zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakij
 \section{Functies}
 
 \subsection{Inleiding}
-Deze opdracht gaat over het gebruik van functies. Veel voorkomende handelingen, zoals het uitrekenen van verschillende waarde van formules of het inlezen van getallen kunnen hiermee efficiënt gecodeerd worden. Daarnaast wordt het gehele programma overzichtelijker. Bepaalde algoritmes, zoals het berekenen van een faculteit of het sorteren van een rij getallen, kunnen elegant worden opgelost door het gebruik van \textsl{recursieve functies} (functies die zichzelf aanroepen). De functies moeten grondig getest worden. Dit kan natuurlijk in hetzelfde programma als waar de functie zich in bevindt.
+Deze opdracht gaat over het gebruik van functies. Veel voorkomende handelingen, zoals het uitrekenen van verschillende waardes van formules of het inlezen van getallen kunnen hiermee efficiënt gecodeerd worden. Daarnaast wordt het gehele programma overzichtelijker. Bepaalde algoritmes, zoals het berekenen van een faculteit of het sorteren van een rij getallen, kunnen elegant worden opgelost door het gebruik van \textsl{recursieve functies} (functies die zichzelf aanroepen). De functies moeten grondig getest worden. Dit kan natuurlijk in hetzelfde programma als waar de functie zich in bevindt.
 
 Na de laatste theorieles in week 3 heb je de huiswerkopdracht gekregen om een recursieve functie te schrijven die het $n^e$ getal uit de \textsl{Fibonacci-rij} (\url{https://nl.wikipedia.org/wiki/Rij_van_Fibonacci}) berekent. Een mogelijke oplossing is:
 
@@ -2505,16 +2531,38 @@ In de getaltheorie komt een bepaalde klasse van getallen voor met de eigenschap 
 
 Schrijf een functie \lstinline|int aantal_delers(int getal)| die van het opgegeven getal het aantal delers bepaalt. Merk op dat 1 ook een deler is. Het getal moet groter zijn dan 1. Schrijf een hoofdprogramma dat de gebruiker vraagt een getal in te voeren (netjes een melding geven wat er gevraagd wordt en testen of het getal groter is dan 1) en het aantal delers afdrukt m.b.v.\@ de functie \lstinline|aantal_delers|.
 
+\subsection{Nulpunten van een functie bepalen}
+Gegeven is de functie:
 
-\section{Pointers en array's}
+\begin{equation}
+f(x) = \frac{1}{10}x^3 - \frac{2}{5}x^2 + x - 1
+\end{equation}
+
+De grafiek van de functie is te zien in de onderstaande figuur. We zien dat het nulpunt tussen 0 en 2 ligt. Met behulp van de \textsl{bisectie-methode} (ook wel halveringsmethode genoemd) kan de x-coördinaat van het nulpunt met willekeurige precisie benaderd worden. Zie voor een uitleg \url{https://en.wikipedia.org/wiki/Bisection_method}.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[background rectangle/.style={fill=yellow!30}, show background rectangle]
+\begin{axis}[
+		axis x line*=middle,
+		axis y line*=left,
+]
+\addplot[mark=none,blue,domain=-3:5] {0.1*x^3 - 0.4*x^2 + x -1};
+\end{axis}
+\end{tikzpicture}
+\end{figure}
+
+Schrijf een programma voor het vinden van de x-coördinaat. Maak gebruik van een functie om de y-coördinaat te berekenen bij een gegeven x-coördinaat. Maak gebruik van een functie die het nulpunt willekeurig dicht benaderd. De functie \lstinline|main| is dus zeer compact en roept alleen functies aan.
+
+
+\section{Arrays}
 
 \subsection{Inleiding}
-\label{sec:inleidingpointers}
-In de les heb je het één en ander geleerd over pointers en array’s. Een pointer is een variabele die als inhoud een adres bevat. Dit adres is dan het adres waar een andere variabele ligt opgeslagen. Zodoende wijst de pointer dus naar de variabele.
+\label{sec:inleidingarray}
+In de les heb je het een en ander geleerd over arrays.
+Een array is een lijst van variabelen van het zelfde type. Je kan een array indexeren. Dat houdt in dat je een \textsl{element} uit de lijst kan gebruiken in je bewerkingen. Hiervoor gebruik je blokhaken. Een korte introductie over arrays is te vinden in het boek.
 
-%Een array is een lijst van variabelen van het zelfde type. Je kan een array indexeren. Dat houdt in dat je een \textsl{element} uit de lijst kan gebruiken in je bewerkingen. Hiervoor gebruik je blokhaken. Een korte introductie over array's en pointers is te vinden in bijlage~\ref{sec:arypoin}.
-
-Hieronder is een programma dat een aantal waarden inleest in een array en vervolgens het gemiddelde van deze waarden afdrukt (het is in dit geval eigenlijk niet nodig om de getallen in en array op te slaan). Maak een project aan en plaats daarin de onderstaande code. Laat zien dat het werkt.
+Hieronder is een programma dat een aantal waarden inleest in een array en vervolgens het gemiddelde van deze waarden afdrukt (het is in dit geval eigenlijk niet nodig om de getallen in een array op te slaan). Maak een project aan en plaats daarin de onderstaande code. Laat zien dat het werkt.
 
 
 \begin{lstlisting}
@@ -2557,7 +2605,7 @@ Schrijf een programma dat een string inleest van het toetsenbord en deze string 
 Verzin zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
 \subsection{Voortschrijden}
-Het bijhouden van de temperatuur wordt al jaren gedaan. Meestal wordt hierbij dan een gemiddelde temperatuur berekend. Dit is eenvoudig, zie opgave~\ref{sec:inleidingpointers}. Maar er is nog een soort gemiddelde: het voortschrijdend gemiddelde. Dit wordt bijvoorbeeld gebruikt bij beurskoersen\footnote{Zie \url{https://nl.wikipedia.org/wiki/Voortschrijdend_gemiddelde}}.
+Het bijhouden van de temperatuur wordt al jaren gedaan. Meestal wordt hierbij dan een gemiddelde temperatuur berekend. Dit is eenvoudig, zie opgave~\ref{sec:inleidingarray}. Maar er is nog een soort gemiddelde: het voortschrijdend gemiddelde. Dit wordt bijvoorbeeld gebruikt bij beurskoersen\footnote{Zie \url{https://nl.wikipedia.org/wiki/Voortschrijdend_gemiddelde}}.
 
 Schrijf een programma dat steeds het voortschrijdend gemiddelde bepaalt van de laatste 10 koersstanden. Na elke berekening moet een nieuwe koerswaarde ($>$ 0) worden ingelezen. Gebruik een array om de koersstanden op te slaan.
 
@@ -2688,7 +2736,6 @@ kan de volgende uitvoer geven:
 
 Bereken zelf ook een aantal testwaardes.
 
-
 \subsection{Run Length encoding}
 Run Length Encoding is een van de oudste compressiemethoden. Een reeks identieke, naast elkaar geplaatste karakters (een Run) wordt vervangen door het aantal karakters (Length) en het karakter.
 
@@ -2709,13 +2756,12 @@ Merk op dat de uitvoer groter wordt als de karakters steeds afwisselen. Zo wordt
 Schrijf een programma dat een string inleest en deze string RLE-gecodeerd in een andere string plaatst. Gebruik hiervoor de functie:
 
 \begin{lstlisting}
-double rlecompress(char *invoerstring, char *rlestring). 
+double rlecompress(char invoerstring[], char rlestring[]). 
 \end{lstlisting}
 
 Zorg ervoor dat de string \lstinline|rlestring| groot genoeg Is om de gecomprimeerde string op te slaan. De return-waarde is de compressieratio: de lenge van \lstinline|rlestring| gedeeld door de lengte van invoerstring.
 
 Verzin zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
-
 
 \subsection{Rolling dice}
 Het gooien van dobbelstenen doen we al sinds mensenheugenis. Er zijn veel spelletjes waarbij twee dobbelstenen in één worp worden gegooid. Maar hoevaak wordt nu 7 als het aantal ogen gegooid? En hoevaak wordt nu 2 als het aantal ogen gegooid? Dat willen we uitzoeken.
@@ -2739,6 +2785,66 @@ Hallo, dit is een string.
 
 Het verwijderen moet in de ingevoerde string gebeuren, er mag geen nieuwe string aangemaakt worden.
 Ga ervan uit dat de ingevoerde string niet langer is dan 100 karakters.
+
+
+\subsection{Waar of niet waar}
+Gegeven is de volgende bewering:
+\begin{quote}
+Deze zin bevat~1 keer een~0,~1 keer een~1,~1 keer een~2,~1 keer een~3,~1 keer een~4,~1 keer een~5,~1 keer een~6,~1 keer een~7,~1 keer een~8 en~1 keer een~9.
+\end{quote}
+
+We bekijken \textbf{alleen} de cijfers en getallen. Natuurlijk is de bewering niet waar, er zijn immers 11 enen. Toch is er een zin mogelijk waarbij het aantal cijfers en de getallen kloppen. Schrijf een programma dat vanuit een beginsituatie (stel alle aantallen 1) iteratief naar een mogelijke oplossing zoekt.
+
+Hint: maak gebruik van twee arrays. Array \lstinline|int a[10]| bevat het aantal cijfers in getalvorm, dus element \lstinline|a[0]| bevat het aantal nullen in getalvorm. In array \lstinline|int b[10]| houd je bij hoe vaak een cijfer voorkomt in de getallen van array \lstinline|a|. Dus \lstinline|b[1]| zou ``10'' kunnen bevatten omdat er in de getallen van array \lstinline|a| 10 keer een~1 voorkomt. Ga ervan uit dat een cijfer niet meer dan 99 keer voorkomt. Bedenk ook dat het aantal voorkomingen van een cijfer minstens 1 is (kijk hierbij naar de zin).
+
+
+\section{Pointers}
+In de les heb je het een en ander geleerd over pointers. Een pointer is een variabele die als inhoud een \textsl{adres} bevat. Dit adres is dan het adres waar een andere variabele ligt opgeslagen. Zodoende wijst de pointer dus naar de variabele. In het boek kan je meer vinden over pointers.
+
+Hieronder is een programma gegeven dat wat meer vertelt over pointers. Kopieer het programma in een nieuw project en start het programma. Bestudeer de uitvoer nauwgezet.
+
+\begin{lstlisting}[]
+#include <stdio.h>
+
+int main(void) {
+
+    int i = 2;
+    int *pi;
+    int ai[10] = { 1, 2, 3, 0 };
+
+    pi = &i;
+
+    printf("Adres van i: %p\n", &i);
+    printf("Inhoud van pi: %p\n", pi);
+
+    printf("Inhoud van i: %d\n", i);
+    printf("Via pointer pi: %d\n\n", *pi);
+
+    printf("Beginadres array ai: %p\n", &ai[0]);
+    printf("Beginadres array ai: %p\n", ai);
+
+    printf("Inhoud van ai[1]: %d\n", ai[1]);
+    printf("Inhoud van ai[1]: %d\n\n", *(ai+1));
+
+    printf("Startadres van functie main: %p\n", main);
+    printf("Startadres van functie printf: %p\n", printf);
+
+    return 0;
+}
+\end{lstlisting}
+
+Een pointer wordt in C aangegeven door een \lstinline|*| voor de variabelenaam te plaatsen. Bij het definitie van een variabele, zoals in \lstinline|int *pi;| zal de compiler een pointer aanmaken. Bij gebruik in een statement, zoals in \lstinline|i = *pi;| wordt de inhoud van de variabele waar de pointer naar toewijst gebruikt. 
+
+Het adres van een variabele is op te vragen door een \lstinline|&| voor de variabele te plaatsen. Dus het statement \lstinline|pi = &i;| zorgt ervoor dat pointer \lstinline|pi| ``wijst'' naar variabele \lstinline|i|.
+
+Arrays kunnen in C via pointers bewerkt worden. Sterker nog, er is geen fundamenteel verschil tussen arrays en pointers, alleen de notatie is anders. De naam van de array mag bijvoorbeeld als pointer naar het eerste element uit de array gebruikt worden. Om het tweede element van een array te gebruiken kunnen we dus \lstinline|i = ary[1];| óf \lstinline|i = *(ary+1);|.De haakjes zijn nodig omdat \lstinline|*| een hogere prioriteit heeft dan \lstinline|+|.
+
+Ook de naam van een functie, bijvoorbeeld \lstinline|printf|, is een pointer, maar nu naar het begin van een functie. Dit worden functiepointers genoemd. Dit soort pointers komt niet zoveel voor.
+
+\letop
+
+\subsection{Array afdrukken}
+Schrijf een programma dat een array van tien integers met behulp van een pointer wordt afgedrukt.
 
 \subsection{Vervangen}
 Voor het vervangen van een woord in een string is in C geen functie beschikbaar. Die zal je dus zelf moeten schrijven. Schrijf een functie:
@@ -2790,23 +2896,14 @@ Let erop dat \lstinline|ptrnew| en \lstinline|ptr| naar twee verschillende adres
 
 Schrijf een functie \lstinline|char *getoneline(int chuncksize)| dat een regel tekst van het toetsenbord inleest en in een stuk dynamisch gealloceerd geheugen plaatst. De parameter \lstinline|chunksize| is het aantal bytes waarmee het geheugen moet worden uitgebreid als een eerder gealloceerd stuk geheugen vol is. Nadat de regel is ingelezen (end-of-line-karakter wordt niet opgeslagen) geeft de functie de pointer terug naar het gealloceerde geheugen. Test je functie met een klein programma en varieer de waarde van \lstinline|chunksize|.
 
-\subsection{Waar of niet waar}
-Gegeven is de volgende bewering:
-\begin{quote}
-Deze zin bevat~1 keer een~0,~1 keer een~1,~1 keer een~2,~1 keer een~3,~1 keer een~4,~1 keer een~5,~1 keer een~6,~1 keer een~7,~1 keer een~8 en~1 keer een~9.
-\end{quote}
 
-We bekijken \textbf{alleen} de cijfers en getallen. Natuurlijk is de bewering niet waar, er zijn immers 11 enen. Toch is er een zin mogelijk waarbij het aantal cijfers en de getallen kloppen. Schrijf een programma dat vanuit een beginsituatie (stel alle aantallen 1) iteratief naar een mogelijke oplossing zoekt.
-
-Hint: maak gebruik van twee array's. Array \lstinline|int a[10]| bevat het aantal cijfers in getalvorm, dus element \lstinline|a[0]| bevat het aantal nullen in getalvorm. In array \lstinline|int b[10]| houd je bij hoe vaak een cijfer voorkomt in de getallen van array \lstinline|a|. Dus \lstinline|b[1]| zou ``10'' kunnen bevatten omdat er in de getallen van array \lstinline|a| 10 keer een~1 voorkomt. Ga ervan uit dat een cijfer niet meer dan 99 keer voorkomt. Bedenk ook dat het aantal voorkomingen van een cijfer minstens 1 is (kijk hierbij naar de zin).
-
-\section{Eindopdracht}
+\section{Bestanden}
 
 \subsection{Inleiding}
 Bij de eindopdracht gaan we gebruik maken van argumenten op de command-line en openen, lezen, schrijven en sluiten van bestanden op de disk. Een volledige introductie over deze onderwerpen is te vinden op BlackBoard. Hieronder wordt slechts het afdrukken van de argumenten op de command-line besproken.
 
 Hieronder zie je een voorbeeld van een programma dat de opgegeven argumenten op het beeldscherm afdrukt. Het programma drukt eerst het aantal opgegeven argumenten af (via de variabele \lstinline|argc|) en drukt daarna een voor een de argumenten af (via de variabele \lstinline|argv|).
-Kopieer de code in een nieuw Code::Blocks-project en start het programma vanaf de command-line.
+Kopieer de code in een nieuw Visual Studio-project en start het programma vanaf de command-line.
 
 \begin{lstlisting}
 /* myprog.c */
@@ -2840,7 +2937,7 @@ Als je dit programma draait vanuit een DOS-box\footnote{Zie \url{https://en.wiki
 %\end{lstlisting}
 
 \begin{dosbox}
-D:\PROJECTS\CodeBlocks\myprog\bin\Debug>myprog.exe one two
+D:\PROJECTS\VS\myprog\Debug>myprog.exe one two
 
 Aantal argumenten: 3
 
@@ -2848,7 +2945,7 @@ Argument 0: myprog.exe
 Argument 1: one
 Argument 2: two
 
-D:\PROJECTS\CodeBlocks\myprog\bin\Debug>
+D:\PROJECTS\VS\myprog\Debug>
 \end{dosbox}
 
 \vfill
@@ -2905,7 +3002,7 @@ Schrijf een programma dat een tekstbestand met C-programmacode inleest. Het prog
 Schrijf een programma dat een tekstbestand met C-programmacode inleest en de programmacode zonder commentaren naar een ander bestand schrijft. Filter zowel blokcommentaren \lstinline|/*....*/| als lijncommentaren \lstinline|//....| uit. De namen van de bestanden moeten als argumenten op de command-line*) meegegeven worden. 
 
 \subsection{Letters tellen}
-Schrijf een programma dat een tekstbestand inleest en bepaalt hoe vaak elke letter voorkomt. Lege regels, cijfers en leestekens mogen worden genegeerd. Hoofdletters en bijbehorende kleine letters moeten als identiek beschouwd worden. De resultaten moeten naast absolute aantallen ook als percentages van het totaal aantal letters in een tekstbestand worden weggeschreven. De namen van de tekstbestanden moeten als argumenten*) op de command-line meegegeven worden. Maak je code efficiënt door gebruik te maken van array's.
+Schrijf een programma dat een tekstbestand inleest en bepaalt hoe vaak elke letter voorkomt. Lege regels, cijfers en leestekens mogen worden genegeerd. Hoofdletters en bijbehorende kleine letters moeten als identiek beschouwd worden. De resultaten moeten naast absolute aantallen ook als percentages van het totaal aantal letters in een tekstbestand worden weggeschreven. De namen van de tekstbestanden moeten als argumenten*) op de command-line meegegeven worden. Maak je code efficiënt door gebruik te maken van arrays.
 
 \subsection{XeT}
 Schrijf een programma dat een tekstbestand inleest. In het tekstbestand zitten speciale commando's verborgen. Deze zijn:
@@ -2924,10 +3021,20 @@ Met argumenten op de command-line wordt het volgende bedoeld:
 
 \begin{itemize}
 \item Open een command-box (Windows: Windowstoets-R en type \lstinline[language=,literate=]|cmd.exe|, OS-X: start terminal; Linux: start terminal).
-\item Navigeer naar de map waar de \textsl{executable} (= uitvoerbaar programma) staat. Bij Code:Blocks iets van \lstinline|C:\Users\...\Debug\bin|. Bij Linux/Mac: effe uitzoeken.
+\item Navigeer naar de map waar de \textsl{executable} (= uitvoerbaar programma) staat. Bij Visual Studio iets van \lstinline|C:\Users\...\source\repos\...\Debug|. Bij Linux/Mac: effe uitzoeken.
 \item Start de executable met \lstinline[language=,literate=]|naamvanexecutable.exe filename1.txt filename2.txt <enter>| (of zoveel argumenten als noodzakelijk).
 \item Het programma start nu met de twee argumenten.
 \end{itemize}
+
+Het is ook mogelijk om in Visual Studio de command line parameters in te stellen. Open hiervoor je project. Navigeer dan naar \texttt{Project $\rightarrow$ Properties}. Selecteer links in het geopende dialoogvenster het onderdeel \texttt{Debugging}. Vul de gegevens in bij \texttt{Command arguments}. Zie figuur~\ref{fig:comdlineparams}.
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{cmdlineparams}
+\caption{Instellen command line parameters.}
+\label{fig:comdlineparams}
+\end{figure}
 
 Het is dus \textbf{niet} de bedoeling dat na het starten van het programma de gebruiker om twee bestandsnamen wordt gevraagd of dat de bestandsnamen hard gecodeerd zijn in het programma. Verder moet getest worden of de bestanden wel geopend kunnen worden. Zo niet, dan moet dat aan de gebruiker worden medegedeeld. Als een gebruiker je programma start met teveel of te weinig argumenten, dan moet je dat aan de gebruiker mededelen. Ga er niet vanuit dat de gebruiker de inhoud van de bestanden zo formatteert dat het direct in je programma werkt. Je moet dus de ingelezen data wel controleren of het voldoet aan het formaat dat je kan verwerken (denk bijvoorbeeld aan letters i.p.v. getallen). Maak je programma flexibel. Dus niet voorschrijven dat je precies 10 getallen moet invoeren (maar om het eenvoudig te houden: niet meer dan 1000) of dat een regel precies 20 karakters moet hebben. Bedenk ook wat er moet gebeuren als een invoerbestand leeg is.
 
