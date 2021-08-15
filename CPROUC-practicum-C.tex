@@ -11,7 +11,7 @@
 %%   Please mail your comments to: J.E.J.opdenBrouw@hhs.nl
 %%
 %%   Compile this document with {xe|lua|pdf}latex at your choice
-%%   {xe|lua}latex needs Calibri and Cambra-math fonts
+%%   {xe|lua}latex needs Calibri, Cambra-Math and Consolas fonts
 %%
 %%   Beware that this document is in Dutch
 
@@ -66,7 +66,7 @@
 \else
 \usepackage[utf8]{inputenc}
 \usepackage{nimbusmono}
-\usepackage[scaled]{helvet}
+%\usepackage[scaled]{helvet}
 \let\oldhrulefill\hrulefill
 \usepackage[charter]{mathdesign}
 \let\hrulefill\oldhrulefill
@@ -166,7 +166,7 @@
 %  prebreak=\mbox{\textcolor{red}{$\hookleftarrow$}\space},
   postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
   upquote=true,
-%  aboveskip=2.5ex,
+  aboveskip=2.5ex plus 1ex minus 1ex,
 %  belowskip=-2.2ex,
   escapeinside={(*@}{@*)},
   moredelim=[s][\textcolor{character}]{'}{'},
@@ -203,7 +203,7 @@
 %% Set the extra <whatever> to colors...
 \lstset{
   keywords=[10]{fib,leesCijfer,fflush,exit,malloc,free,realloc,catalan,faculteit,catalanRecursief,collatzSteps,max2,leesGetal,gemiddelde,kgv,ggd,leesEnBerekenSom,leesEnBerekenMod9,isprime,isisolatedprime,sinc,aantal_delers,reverse,strrev,is_palindroom,controleerNedEuroID,doorsnede,uniek,rlecompress,roll_dice,rand,stringreplace,scanf_s,getoneline},  % User functions
-  keywords=[11]{},  % Typedef'd types
+  keywords=[11]{punt},  % Typedef'd types
   keywords=[12]{},  % Macros
   keywords=[13]{},  % System header files
 }
@@ -2798,6 +2798,20 @@ We bekijken \textbf{alleen} de cijfers en getallen. Natuurlijk is de bewering ni
 Hint: maak gebruik van twee arrays. Array \lstinline|int a[10]| bevat het aantal cijfers in getalvorm, dus element \lstinline|a[0]| bevat het aantal nullen in getalvorm. In array \lstinline|int b[10]| houd je bij hoe vaak een cijfer voorkomt in de getallen van array \lstinline|a|. Dus \lstinline|b[1]| zou ``10'' kunnen bevatten omdat er in de getallen van array \lstinline|a| 10 keer een~1 voorkomt. Ga ervan uit dat een cijfer niet meer dan 99 keer voorkomt. Bedenk ook dat het aantal voorkomingen van een cijfer minstens 1 is (kijk hierbij naar de zin).
 
 
+\section{Structures}
+
+
+\subsection{Afstand tussen twee punten}
+Gegeven zijn twee punten in een 2-dimensionaal vlak. De punten worden gegeven via twee structures:
+
+\begin{lstlisting}[caption=]
+struct punt {
+    double x, y;
+}
+\end{lstlisting}
+
+Schrijf een programma dat de twee structures inleest en vervolgens de afstand tussen deze twee punten berekent en afdrukt. Hint: gebruik de stelling van Pythagoras.
+
 \section{Pointers}
 In de les heb je het een en ander geleerd over pointers. Een pointer is een variabele die als inhoud een \textsl{adres} bevat. Dit adres is dan het adres waar een andere variabele ligt opgeslagen. Zodoende wijst de pointer dus naar de variabele. In het boek kan je meer vinden over pointers.
 
@@ -2844,23 +2858,42 @@ Ook de naam van een functie, bijvoorbeeld \lstinline|printf|, is een pointer, ma
 \letop
 
 \subsection{Array afdrukken}
-Schrijf een programma dat een array van tien integers met behulp van een pointer wordt afgedrukt.
+Schrijf een programma dat een array van tien integers met behulp van een pointer afdrukt.
 
-\subsection{Vervangen}
+\subsection{String achterstevoren afdrukken}
+Schrijf een functie die een meegegeven string (dus als argument) van willekeurige lengte achterstevoren afdrukt. Maak gebruik van een pointer. De string mag niet aangepast worden in de functie. Test de functie met een hoofdprogramma.
+
+\subsection{Woorden tellen}
+Schrijf een functie die in een meegegeven string (dus als argument) van willekeurige lengte het aantal woorden telt. De woorden in de string worden gescheiden door spaties. Vergeet de woorden aan het begin en einde van de string mee te tellen. Het getelde aantal woorden wordt als returnwaarde teruggegeven. Maak gebruik van pointers. Test de functie met een hoofdprogramma.
+
+\subsection{Array van integers omkeren}
+Schrijf een functie die een meegegeven array van integers en een meegegeven lengte van de array in elementen, omkeert. Het eerste en laatste element worden dus verwisseld. Zo ook met de andere elementen. Maak gebruik van pointers. Test de functie met een hoofdprogramma.
+
+\subsection{Zoek het grootste getal}
+Gegeven is een array van integers (die moet je zelf vullen). Schrijf een functie die van de meegegeven array het grootste getal bepaalt. Natuurlijk moet ook de lengte van de array meegegeven worden. Het adres van het grootste getal moet via een pointer worden teruggegeven. Schrijf een hoofdprogramma die de functie aanroept en via de teruggeven pointer het grootste getal afdrukt.
+
+\subsection{Vervangen van karakter}
+Schrijf een functie die in een meegegeven string, het meegegeven karakter vervangt door een tweede meegegeven karakter. Gebruik in deze functie pointers. Test de functie met een hoofdprogramma.
+
+
+\subsection{Vervangen van woord}
 Voor het vervangen van een woord in een string is in C geen functie beschikbaar. Die zal je dus zelf moeten schrijven. Schrijf een functie:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 int stringreplace(char *str, char *what, char *with)
 \end{lstlisting}
 
-die in de string \lstinline|str| zoekt naar het woord \lstinline|what| en vervangt door het woord \lstinline|with|. De return-waarde is het aantal vervangingen en kan natuurlijk ook 0 zijn. Schrijf een hoofdprogramma om de functie te testen. Noot: let erop dat de lengte van \lstinline|with| groter kan zijn dan de lengte van \lstinline|what|. Zorg ervoor dat de ruimte van de string \lstinline|str| groot genoeg is.
+die in de string \lstinline|str| zoekt naar het woord aangegeven door \lstinline|what| en vervangt door het woord aangegeven door \lstinline|with|. De return-waarde is het aantal vervangingen en kan natuurlijk ook 0 zijn. Schrijf een hoofdprogramma om de functie te testen. Noot: let erop dat de lengte van \lstinline|with| groter kan zijn dan de lengte van \lstinline|what|. Zorg ervoor dat de ruimte van de string \lstinline|str| groot genoeg is. Maak gebruik van pointers.
+
+\subsection{Dynamische array}
+Schrijf een programma dat met behulp van \textsl{dynamische geheugenallocatie} een array van integers van willekeurige lengte van het toetsenbord inleest en deze array netjes afdrukt. De spil in deze opdracht is het gebruik van de de functie \lstinline|calloc|. Zie bijvoorbeeld \url{https://www.cplusplus.com/reference/cstdlib/calloc/}.
 
 \subsection{Onbeperkt}
 Het inlezen van een regel tekst van het toetsenbord is niet echt lastig. Het wordt pas problematisch als er meer tekens worden ingelezen dan er in de string kunnen worden ondergebracht. Meestal declareren we een string met 100 karakters en hopen maar dat er niet meer karakters worden ingevoerd.
 
 We kunnen dit oplossen door on-the-fly dynamisch geheugen te alloceren. Een eenvoudig voorbeeld van dynamische geheugenallocatie is hieronder gegeven:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 #include <stdio.h>
 #include <malloc.h>
 
@@ -2885,7 +2918,7 @@ Merk op dat het stuk geheugen dat beschikbaar is gesteld niet is geïnitialiseer
 
 We hebben nu een stuk geheugen van 1024 bytes. Dat kan op een gegeven moment vol zijn. Er moet dan een stuk geheugen worden gealloceerd dat groter is, bijvoorbeeld 2048 bytes. Dat kan met de functie \lstinline|realloc()|:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 	char *ptrnew;
 
 	ptrnew = realloc(ptr, 2048);
@@ -2900,7 +2933,7 @@ Schrijf een functie \lstinline|char *getoneline(int chuncksize)| dat een regel t
 \section{Bestanden}
 
 \subsection{Inleiding}
-Bij de eindopdracht gaan we gebruik maken van argumenten op de command-line en openen, lezen, schrijven en sluiten van bestanden op de disk. Een volledige introductie over deze onderwerpen is te vinden op BlackBoard. Hieronder wordt slechts het afdrukken van de argumenten op de command-line besproken.
+Bij deze opdracht gaan we gebruik maken van argumenten op de command-line en openen, lezen, schrijven en sluiten van bestanden op de disk. Een volledige introductie over deze onderwerpen is te vinden op BlackBoard. Hieronder wordt slechts het afdrukken van de argumenten op de command-line besproken.
 
 Hieronder zie je een voorbeeld van een programma dat de opgegeven argumenten op het beeldscherm afdrukt. Het programma drukt eerst het aantal opgegeven argumenten af (via de variabele \lstinline|argc|) en drukt daarna een voor een de argumenten af (via de variabele \lstinline|argv|).
 Kopieer de code in een nieuw Visual Studio-project en start het programma vanaf de command-line.
