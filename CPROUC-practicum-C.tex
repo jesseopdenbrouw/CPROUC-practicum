@@ -14,11 +14,22 @@
 %%   {xe|lua}latex needs Calibri, Cambra-Math and Consolas fonts
 %%
 %%   Beware that this document is in Dutch
+%%
+%%   For students: use \printdifficultyfalse
+%%   For lectures: use \printdifficultytrue
 
 \documentclass[a4paper,10pt,fleqn,twoside]{article}
 
+%% The current version
 \def\version{0.9}
 
+%% Print difficulty in front of the exercises
+%% Also prints a table of difficulties at the end
+%% of the document. Set to false for students.
+\newif\ifprintdifficulty
+\printdifficultytrue
+
+%% All the needed packages (a lot!)
 \usepackage{siunitx}
 \sisetup{output-decimal-marker = {,}}
 \usepackage{parskip}
@@ -33,11 +44,10 @@
 \usepackage{dingbat}
 \usepackage[european,betterproportions,americanvoltages]{circuitikz}
 \usepackage{pgfplots}
+\usepgfplotslibrary{fillbetween}
 \usetikzlibrary{backgrounds}
 \usepackage[left=1.2in,right=1.2in,top=1in,bottom=1.5in,footskip=0.4in]{geometry}
 \usepackage{enumitem}
-\usepackage{etoolbox}
-\preto{\section}{\clearpage}
 \usepackage{mathtools}
 \setlength{\mathindent}{1em}
 \DeclareMathOperator{\kgv}{kgv}
@@ -45,6 +55,8 @@
 \DeclareMathOperator{\sinc}{sinc}
 \newcommand\strutrule{\rule{0mm}{1.9ex}} %shortcut macro
 \usepackage{tabularx}
+\usepackage{letltxmacro}
+
 
 %% Find out what engine we're running...
 \usepackage{iftex}
@@ -66,7 +78,6 @@
 \else
 \usepackage[utf8]{inputenc}
 \usepackage{nimbusmono}
-%\usepackage[scaled]{helvet}
 \let\oldhrulefill\hrulefill
 \usepackage[charter]{mathdesign}
 \let\hrulefill\oldhrulefill
@@ -102,6 +113,7 @@
 \bookfancy
 \fancypagestyle{plain}{\bookfancy}
 
+
 % Used in a Tikz picture
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 % Color of the university logo
@@ -109,13 +121,13 @@
 
 
 %% Use xcolor
-\usepackage{xcolor}
+%\usepackage{xcolor} % already loaded
 %% Use textcomp for upright quotes in listings
 \usepackage{textcomp}
 %% Use computer code listings
 \usepackage{listings}
-\makeatletter
 % Replace \char32 with U-form vrule/hrule to match the tab char
+\makeatletter
 \AtBeginDocument{%
 \def\lst@visiblespace{\kern.06em\hbox{\vrule\@height.3ex}%
                       \hrulefill\hbox{\vrule\@height.3ex}}}
@@ -209,6 +221,44 @@
 }
 
 
+
+%% This piece of code prepends the \subsection with a difficulty
+%% grade if \printdifficulty is set to true, but *only* if the third
+%% (optional) argument is supplied. It also creates a list of
+%% difficulties with subsection number, to be printed at the end.
+%% Patch \subsection
+%% http://archive.cs.uu.nl/mirror/CTAN/macros/latex/contrib/titlesec/titlesec.pdf
+%% http://archive.cs.uu.nl/mirror/CTAN/macros/latex/contrib/titlesec/titlesec.pdf
+\usepackage{titlesec}
+\usepackage{titletoc}
+\titleformat{\subsection}{\bfseries\large}{\secmark\thesubsection}{1em}{}
+\ExplSyntaxOn
+\seq_new:N \g__diff_seq
+\seq_gclear:N \g__diff_seq
+
+%% Must be done *after* \titleformat
+%% Make a link to the original \subsection
+\LetLtxMacro{\Oldsubsection}{\subsection}
+%% Renew the \subsection command, optional first argument is gobbled
+%% Optional third is typeset into the left margin
+\RenewDocumentCommand{\subsection} {o m o} {
+  %% Set to empty
+  \renewcommand*{\secmark}{}%
+  \ifprintdifficulty
+    \IfNoValueF { #3 } {
+      %% If there is a third argument, set argument in left margin
+      \renewcommand*{\secmark}{{\color{red}\llap{\fbox{#3}\hspace*{10pt}}}}%
+    }
+  \fi
+  %% Typeset subsection with optional third argument
+  \Oldsubsection{#2}
+  %% if third argument, add to the sequence
+  \IfNoValueF { #3 } { \seq_gput_right:Nx \g__diff_seq {\thesubsection\space\space #3 \\} }
+}
+%% Create command and set to empty
+\newcommand*{\secmark}{}
+\ExplSyntaxOff
+
 %% Hyper links in references and URLs
 \PassOptionsToPackage{hyphens}{url}
 \usepackage{hyperref}
@@ -216,6 +266,9 @@
     colorlinks=true,
     linkcolor=blue,
     citecolor=purple,
+%    linkcolor=thuasgreen!50!black,
+%    citecolor=thuasgreen!50!black,
+%    urlcolor=thuasgreen!50!black,
     pdftitle={C programmeren, practicumopdrachten},
     pdfauthor={De Haagse Hogeschool, Opleiding Elektrotechniek},
     pdfsubject={},
@@ -224,16 +277,9 @@
 }
 \urlstyle{sf}%
 
-%% Make a nice \thepage at the outer margin
-%\makeatletter
-%\newlength{\page@number@width}
-%\settowidth{\page@number@width}{\thepage}
-%\addtolength{\page@number@width}{6mm}
-%\newcommand{\pagenumberbox}{\colorbox{thuasgreen}{\makebox[\page@number@width][c]{\color{white}\textbf{\vphantom{2}\thepage}}}}
-%\makeatother
 
 \newcommand{\letop}{%
-\vspace*{2ex}
+\vspace{4ex plus 1ex minus 1ex}
 \begin{mdframed}[outerlinewidth = 1 ,%
 roundcorner = 4 pt,%
 leftmargin = 40,%
@@ -247,10 +293,11 @@ splittopskip = \topskip,%
 \Large\leftpointright & Let op! Je moet één van de onderstaande opdrachten maken. De practicumdocent bepaalt welke opdracht je moet maken.
 \end{tabularx}
 \end{mdframed}
+\vspace{4ex plus 1ex minus 1ex}
 }
 
 \newcommand{\letopscanf}{%
-\vspace*{2ex}
+\vspace{4ex plus 1ex minus 1ex}
 \begin{mdframed}[outerlinewidth = 1 ,%
 roundcorner = 4 pt,%
 leftmargin = 40,%
@@ -270,10 +317,11 @@ splittopskip = \topskip,%
 Nu kan \lstinline{scanf} gebruikt worden. Er zijn nog meer functies die deze pragma nodig hebben om te functioneren.
 \end{tabularx}
 \end{mdframed}
+\vspace{4ex plus 1ex minus 1ex}
 }
 
 \newcommand{\leesvoetnoot}{%
-\vspace*{2ex}
+\vspace{4ex plus 1ex minus 1ex}
 \begin{mdframed}[outerlinewidth = 1 ,%
 roundcorner = 4 pt,%
 leftmargin = 40,%
@@ -287,6 +335,7 @@ splittopskip = \topskip,%
 \Large\leftpointright & LEES DE VOETNOOT AAN HET EINDE VAN DIT HOOFDSTUK!.
 \end{tabularx}
 \end{mdframed}
+\vspace{4ex plus 1ex minus 1ex}
 }
 
 \usepackage[most]{tcolorbox}
@@ -317,16 +366,6 @@ splittopskip = \topskip,%
 }
 } % AtBeginDocument
 
-%\newcommand\unitsize{0.80}
-%\tikzset{memloc/.style={rectangle,draw=black, thick, minimum size=\unitsize cm}}
-%\tikzset{arraypic/.style={font=\ttfamily,scale=\unitsize}}
-%\tikzset{
-%	memlocnull/.pic={
-%	\node[memloc] {};
-%	\draw[thick] (-0.5*\unitsize,-0.5*\unitsize) -- (0.5*\unitsize,0.5*\unitsize);
-%	\draw[thick] (-0.5*\unitsize,0.5*\unitsize) -- (0.5*\unitsize,-0.5*\unitsize);
-%	}
-%}
 
 
 %% At last, the document contents itself
@@ -607,6 +646,11 @@ splittopskip = \topskip,%
 \vspace*{1cm}
 
 \Large Versie \version\\ \today
+
+\ifprintdifficulty
+\vspace*{1cm}
+\textcolor{red}{\fbox{Docentenexemplaar}}
+\fi
 \vfill
 \end{titlepage}
 
@@ -619,7 +663,7 @@ Dit document is gemaakt door J.F. Theinert, W. Muhammad, B. Kuiper, M.J.A.J. Sch
 Opmerkingen kunnen worden gemaild naar \href{mailto:J.E.J.opdenBrouw@hhs.nl}{J.E.J.opdenBrouw@hhs.nl}
 
 
-
+\clearpage
 \section*{Aanbevolen werkwijze}
 \addcontentsline{toc}{section}{Aanbevolen werkwijze}
 
@@ -647,7 +691,7 @@ Windows heeft de onhebbelijke eigenschap om bestandsnamen met spaties toe te sta
 Veel succes!
 
 
-
+\clearpage
 \section{Inleiding}
 
 De practicumdocent zal tijdens het practicum uit hoofdstukken 2 t/m 6 één opdracht aanwijzen die je moet maken. De opdrachten in hoofdstuk 1 moet je allemaal maken. 
@@ -675,7 +719,7 @@ Voer de handelingen uit in bijlage~\ref{sec:installatievsc}. Als je liever Code:
 \subsection{Programma wijzigen}
 Wijzig de broncode van het programma dat je in de introductie hebt gemaakt als volgt:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 /* My first program */
 #include <stdio.h>
 
@@ -698,11 +742,9 @@ Als je het bovenstaande programma juist hebt ingevoerd dan zal bij het vertalen 
 %     printf("Het product van %d en %d is: %d\n", a, b, a + b);
 %     ^
 %\end{lstlisting}
-\begin{lstlisting}[language=,basicstyle=\footnotesize\ttfamily,literate=]
+\begin{lstlisting}[caption=,language=,basicstyle=\footnotesize\ttfamily,literate=]
 Error C2146 syntax error: missing ';' before identifier 'printf' C:\Users\jesse\source\repos\ep2d\probeer.c	11	
 \end{lstlisting}
-
-
 
 Zie \textbf{jij} wat er fout is?
 
@@ -712,7 +754,7 @@ Corrigeer de fout en compileer (vertaal) het programma opnieuw.
 
 Als je het bovenstaande programma juist hebt ingevoerd (en de syntax fout hebt gecorrigeerd) dan verschijnt een window met de volgende uitvoer:
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 Het product van 6 en 10 is: 16
 \end{lstlisting}
 
@@ -724,10 +766,10 @@ Een fout die er voor zorgt dat de uitvoer van een programma niet correct is word
 
 Corrigeer de fout (er zijn twee mogelijkheden!) en test het programma opnieuw.
 
-\subsection{Programma met invoer.}
+\subsection{Programma met invoer}
 Een integer variabele a kan als volgt vanaf het toetsenbord worden ingelezen:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 scanf("%d", &a);
 \end{lstlisting}
 
@@ -738,7 +780,9 @@ Schrijf nu zelf een programma dat twee integers inleest (vanaf het toetsenbord) 
 \bigskip
 \letopscanf
 
-\section{Toekennings- en herhalingsopdrachten (\texttt{for} loop)}
+
+\clearpage
+\section{Toekennings- en herhalingsopdrachten (\texttt{for}, \texttt{while})}
 
 \subsection{Inleiding}
 
@@ -746,7 +790,7 @@ In de opdrachten van dit hoofdstuk wordt gevraagd een programma te schrijven, wa
 
 Als voorbeeld is onderstaand programma gegeven. Hierin worden o.a.\@ wiskundige functies gebruikt. Deze zijn opgenomen in een zogenoemde mathematische bibliotheek. Enkele voorbeelden van functies die in deze bibliotheek zijn gedefinieerd zijn: sinus, cosinus, de vierkantswortel en machtsverheffen. Om deze standaard functies in jouw programma te kunnen gebruiken, zal je in je programma bovenin de volgende \textsl{headerfile} moeten opnemen: 
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 #include <math.h>
 \end{lstlisting}
 
@@ -756,7 +800,7 @@ In onderstaand voorbeeldprogramma wordt aan de gebruiker gevraagd een positief g
 
 Maak een project aan en plaats daarin de onderstaande code. Laat zien dat het werkt.
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 #include <stdio.h>
 #include <math.h>
 
@@ -780,21 +824,22 @@ int main(void) {
 \end{lstlisting}
 
 \letop
+\clearpage
 
-\subsection{Kwadraten en derde machten}
+\subsection{Kwadraten en derde machten}[A]
 Schrijf een programma die de kwadraten en derde machten van 1 t/m 10 afdrukt. Gebruik een \lstinline|for|-statement voor het opzetten van de herhaling.
 
-\subsection{Tafel van 12}
+\subsection{Tafel van 12}[A]
 Schrijf een programma dat de tafel van 12 afdrukt. Maar gebruik van een \lstinline|for|-statement voor het opzetten van de herhaling.
 
-\subsection{Achterstevoren}
+\subsection{Achterstevoren}[A]
 Schrijf een programma dat de gebruiker vraagt om een positief geheel getal in te voeren. Druk vervolgens de cijfers van dat getal achterstevoren af. Dus 12345 wordt 54321.
 
-\subsection{Deelbaar door 9}
+\subsection{Deelbaar door 9}[A]
 Schrijf een programma dat alle getallen tussen 100 en 200 afdrukt, die deelbaar zijn door 9. Gebruik een \lstinline|for|-statement voor het opzetten van de herhaling. Doe dit zonder gebruik te maken van een beslissingsstatement (\lstinline|if|).
 
-\subsection{Harmonische reeks}
-Schrijf een programma dat de reciproken van 1 t/m 100 bij elkaar optelt. Dat is dus:
+\subsection{Harmonische reeks}[A]
+Schrijf een programma dat de inversen van 1 t/m 100 bij elkaar optelt. Dat is dus:
 
 \begin{equation*}
 \text{som} = \dfrac{1}{1}+\dfrac{1}{2}+\dfrac{1}{3}+\dfrac{1}{4} + \cdots + \dfrac{1}{100}
@@ -802,10 +847,10 @@ Schrijf een programma dat de reciproken van 1 t/m 100 bij elkaar optelt. Dat is 
 
 Gebruik een \lstinline|for|-statement voor het opzetten van de herhaling.
  
-\subsection{Driehoek van Floyd}
+\subsection{Driehoek van Floyd}[B]
 Schrijf een programma dat een positief geheel getal inleest en vervolgens de driehoek van Floyd afdrukt. In deze driehoek worden getallen oplopend afgedrukt, beginnend bij 1, steeds één getal meer per rij. Een voorbeeld van de driehoek voor invoer van het getal 6 is hieronder gegeven.
 
-\begin{lstlisting}[style=,literate=]
+\begin{lstlisting}[caption=]
 Geef positief getal: 6
  1
  2  3
@@ -815,7 +860,7 @@ Geef positief getal: 6
 16 17 18 19 20 21
 \end{lstlisting}
 
-\subsection{Inwendig en uitwendig vermogen}
+\subsection{Inwendig en uitwendig vermogen}[B]
 Een spanningsbron kan worden voorgesteld door een ideale spanningsbron met de spanning $U_b$ en een inwendige weerstand $R_i$. Aan deze bron wordt een uitwendige weerstand $R_u$ geplaatst zodat er een stroom $I_b$ gaat vloeien. Op het moment dat er een stroom vloeit, verbruiken de inwendige weerstand en de uitwendige weerstand vermogen. De bron levert het vermogen. Een voorstelling is te zien in onderstaande figuur.
 
 \begin{figure}[!ht]
@@ -835,7 +880,7 @@ Test het programma met $U_b=5$ en $R_i=10$. Bij $R_U=100$ is $P_{Ri}=20,66$ mW e
 
 Bereken zelf minimaal één set met testwaardes.
 
-\subsection{Parallelweerstanden}
+\subsection{Parallelweerstanden}[A]
 De vervangingswaarde van parallel geschakelde weerstanden is uit te rekenen met de formule:
 
 \begin{equation*}
@@ -846,7 +891,7 @@ waarbij $R_p$ de vervangingswaarde van de parallel geschakelde weerstanden is en
 
 Ontwerp een programma dat de gebruiker vraagt om het aantal weerstanden in te voeren (groter dan 0 natuurlijk). Daarna worden een voor een de weerstandswaarden ingevoerd. Vervolgens wordt de berekende vervangingswaarde afgedrukt. Zorg ervoor dat bij het invoeren van de gegevens een informatieve tekst wordt afgedrukt zodat de gebruiker weet wat hij/zij moet doen. Voorbeeld:
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 Geef aantal weerstanden op: 4
 Geef waarde weerstand 1: 6
 Geef waarde weerstand 2: 2
@@ -855,7 +900,7 @@ Geef waarde weerstand 4: 8
 De vervangingswaarde is: 1.121 Ohm
 \end{lstlisting}
 
-\subsection{Bazel-probleem }
+\subsection{Bazel-probleem }[A]
 Schrijf een programma dat de uitkomst bepaalt van de onderstaande rij:
 
 \begin{equation*}
@@ -866,14 +911,14 @@ De uitkomst is dus de som van de inversen van de kwadraten van 1 tot en met $n$.
 
 Het is te bewijzen dat als $n\longrightarrow\infty$, de uitkomst $\pi^2/6 \approx 1,\!644934$ bedraagt. Zie \url{https://nl.wikipedia.org/wiki/Bazel-probleem}.
 
-\subsection{De spaarrekening}
+\subsection{De spaarrekening}[B]
 Wanneer je een geldbedrag op een spaarrekening hebt staan en je neemt de daarover uitgekeerde rente niet op, dan groeit het geldbedrag elk jaar met die rente. 
 
 Ontwerp een programma dat de gebruiker vraagt het beginbedrag dat op de spaarrekening staat en de rente in procenten die per jaar rente wordt uitgekeerd, in te voeren. Het bedrag staat 10 jaar op de spaarrekening. Het programma moet telkens het bedrag op de spaarrekening aan het eind van het lopende jaar berekenen, en dit bedrag samen met de rente van het betreffende jaar op het scherm afdrukken. Gebruik hiervoor een \lstinline|for| loop. Zorg ervoor dat voor het beginbedrag en rente alleen positieve getallen kunnen worden ingevoerd door gebruik te maken van een \lstinline|do while| loop.
 
 Test het programma met: Beginbedrag = 1000 euro, rente = 5\%
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 Geef beginbedrag: 1000
 Geef rente in procenten: 5
 jaar  rente  nieuw
@@ -892,7 +937,7 @@ jaar  rente  nieuw
 
 Bereken zelf minimaal nog één set met testwaardes.
 
-\subsection{De transformator}
+\subsection{De transformator}[B]
 De spanningen en wikkelingen van de primaire en de secundaire zijde van een transformator verhouden zich als:
 
 \begin{equation*}
@@ -911,7 +956,7 @@ Ontwerp een programma dat de gebruiker vraagt de primaire spanning ($U_p$), het 
 
 Test het programma met:
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 Geef primaire spanning Up: 10
 Geef primaire wikkelingen Np: 10
 Geef secundaire spanning Us: 200
@@ -957,7 +1002,7 @@ Geef secundaire spanning Us: 200
 
 Bereken zelf minimaal nog één set met testwaardes.
 
-\subsection{Faculteit}
+\subsection{Faculteit}[B]
 De faculteit van het getal $n$ wordt genoteerd als $n!$ en is gedefinieerd als:
 
 \begin{equation*}
@@ -982,7 +1027,7 @@ Ontwerp een programma dat de gebruiker om het gehele getal $n$ ($n \geq 0$) vraa
 
 Bereken zelf minimaal twee sets met testwaardes. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Afgelegde weg}
+\subsection{Afgelegde weg}[C]
 Een kleine stalen kogel wordt onder een hoek $\alpha$ weggeschoten met een beginsnelheid $v_0$. De hoek ligt tussen $0^\circ$ en $90^\circ$ in lijn met het aardoppervlakte (de positieve x-as, zoals hoeken altijd getekend worden). De kogel wisselt geen energie uit met de omgeving, de beweging is dus wrijvingsloos. De kogel is natuurlijk ook onder invloed van de zwaartekracht. Dat houdt in dat de kogel een keer op de grond terecht komt. De hoogte en afgelegde weg als functie van de tijd kunnen beschreven worden met de functies:
 
 \begin{align*}
@@ -996,7 +1041,7 @@ Zorg ervoor dat het programma goed omgaat met de invoer $\alpha < 0^\circ$ en $\
 
 Test het programma met:
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 Geef de hoek in graden (0 - 90): 45
 Geef de snelheid in km/h (> 0): 200
 Hoek in radialen: 0.7853982
@@ -1015,7 +1060,7 @@ Tijd   Hoogte [m]   Afstand [m]
 
 Bereken zelf minimaal één set met testwaardes.
 
-\subsection{Benadering sinus}
+\subsection{Benadering sinus}[D]
 De sinus van een hoek wordt benaderd door:
 
 \begin{equation*}
@@ -1030,16 +1075,15 @@ Ontwerp een nieuw programma waarbij weer $n$ en $x$ worden gevraagd maar waarbij
 
 Bereken zelf minimaal twee sets met testwaardes. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Kerstboom}
+\subsection{Kerstboom}[D]
 Een kerstboom is natuurlijk onmisbaar met kerstmis. Om het aantal verbruikte kerstbomen te minderen moet je een programma schrijven dat een kerstboom met `+’-tekens afdrukt. De gebruiker voert een getal $n$ ($2 < n < 80$) in dat de breedte van de kerstboom voorstelt. Het afdrukken van de kerstboom begint met de top (in het midden) en dijt per afgedrukte regel met twee `+’-tekens uit. De kerstboom moet natuurlijk wel een stam en een ‘voet’ of standaard hebben. De afmetingen van de stam en de voet zijn (als je het netjes doet) ook afhankelijk van $n$. Zorg ervoor dat het programma goed omgaat met de invoer $n \leq 2$ en $n \geq 80$ door gebruik te maken van een \lstinline|do while| loop.
 
-
-\subsection{Maandkalender}
+\subsection{Maandkalender}[D]
 Schrijf een programma dat een maandkalender afdrukt. De gebruiker moet het aantal dagen in de maand en de dag van de week waarop de maand begint invoeren. Het aantal dagen in de maand kan minimaal 28 en maximaal 31 zijn. De dag van de week waarop de maand begint wordt ingevoerd als een geheel getal met een minimale waarde van 1 (zondag) en een maximale waarde van 7 (zaterdag). Zorg ervoor dat het programma goed omgaat met de invoer van ongeldige getallen.
 
 Voorbeeld van het uitvoeren van dit programma:
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 Geef het aantal dagen in de maand: 41
 Geef het aantal dagen in de maand: 31
 Geef de dag van de week waarop de maand begint (1 = zondag ... 7 = zaterdag): 0
@@ -1056,7 +1100,7 @@ zo ma di wo do vr za
 
 Maak voor het afdrukken van de tabel gebruik van een \lstinline|for| loop.
 
-\subsection{Wind-chill temperatuur}
+\subsection{Wind-chill temperatuur}[C]
 Bij het kouder worden van de dagen vragen veel mensen zich af hoe koud het buiten nu eigenlijk aanvoelt. De gevoelstemperatuur is afhankelijk van de omgevingstemperatuur (uit de zon, uit de wind) en de windsnelheid. De gevoelstemperatuur kan als volgt berekend worden:
 
 \begin{equation*}
@@ -1069,7 +1113,7 @@ Ontwerp een programma dat aan de gebruiker een temperatuur en een windsnelheid v
 
 Zorg ervoor dat de gebruiker alleen temperaturen een windsnelheden invoert die zijn toegestaan (zie eerder in deze opgave).
 
-\subsection{Benadering e}
+\subsection{Benadering e}[C]
 De wiskundige constante e wordt benaderd door:
 
 \begin{equation*}
@@ -1082,33 +1126,13 @@ Ontwerp een nieuw programma waarbij weer $n$ wordt gevraagd maar waarbij een lij
 
 Controleer de werking van het programma met: e = 2.718281828
 
-%%%\subsection{Fahrenheit naar Celsius}
-%%%In Amerika wordt als eenheid de graden Fahrenheit gebruikt. In Europa kennen we de eenheid graden Celsius. Het omrekenen van graden Fahrenheit naar graden Celsius kan met de formule:
-%%%
-%%%\begin{equation*}
-%%%C = (F-32)\cdot\dfrac{9}{5}
-%%%\end{equation*}
-%%%
-%%%Ontwerp een programma dat een begintemperatuur en een eindtemperatuur inleest (gehele graden Fahrenheit) en van elke temperatuur tussen de twee ingegeven temperaturen (steeds met 1 verhogen) de bijbehorende temperatuur in graden Celsius afdrukt. Zorg ervoor dat de ingegeven eindtemperatuur groter is dan de ingegeven begintemperatuur (gebruik een \lstinline|do while|-lus).
-%%%
-%%%Voorbeeld:
-%%%
-%%%\begin{lstlisting}[language=,literate=]
-%%%Begintemperatuur: 5
-%%%Eindtemperatuur: 7
-%%%5 graden Fahrenheit is -15.0 graden Celsius.
-%%%6 graden Fahrenheit is -14.4 graden Celsius.
-%%%7 graden Fahrenheit is -13.9 graden Celsius.
-%%%\end{lstlisting}
-
-
-\subsection{Opladen van een condensator}
+\subsection{Opladen van een condensator}[C]
 In de onderstaande figuur is een  schakeling met een weerstand $R$ en een condensator $C$ te zien.
 Alle spanningen in de schakeling zijn in de beginsituatie 0 V.
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[]
+\begin{tikzpicture}
 \draw [latex-latex,shorten >=5pt, shorten <=5pt] (0,-2) -- (0,0);
 \draw [latex-latex,shorten >=5pt, shorten <=5pt] (3.5,-2) -- (3.5,0);
 \node at (-0.5,-1) {$U_{in}$};
@@ -1131,7 +1155,7 @@ U_{uit}(t) = 10\cdot(1-\mathrm{e}^{-t/RC}) \qquad\qquad\qquad (\text{e is het gr
 
 Schrijf een programma dat de uitgangsspanning $U_{uit}$ berekend als functie van $R$, $C$ en de tijd. Het programma moet de waarden van $R$ en $C$ inlezen (beide moeten groter zijn dan 0) en daarna moet het aantal te berekenen seconden worden ingevoerd (groter dan 0). Het programma berekent vanaf tijdstip 0 op iedere seconde de waarde van de uitgangsspanning. Hieronder zie je een mogelijke uitvoer van het programma.
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 Geef de waarde van R (R > 0): 2.5
 Geef de waarde van C (C > 0): 1.4
 Geef het aantal seconden op (t > 0): 20
@@ -1162,7 +1186,7 @@ tijd spanning
 
 Merk op dat, naar mate de tijd toeneemt, de uitgangsspanning steeds dichter bij 10 V komt, maar nooit helemaal 10 V zal worden.
 
-\subsection{Stroom door een diode}
+\subsection{Stroom door een diode}[C]
 Een \textsl{diode} is een elektronische component die vaak gebruikt wordt, bijvoorbeeld in gelijkrichtschakelingen. De relatie tussen de spanning \textsl{over} en de stroom \textsl{door} de diode is gegeven met de formule van Shockley en geldt voor een ideale diode:
 
 \begin{equation}
@@ -1206,7 +1230,7 @@ We zien dat de stroom nagenoeg 0 is bij spanningen kleiner dan \SI{0.4}{\volt} e
 
 Schrijf een programma dat de stroom door de diode berekent, tussen de spanningen \SI{0.4}{\volt} en \SI{0.6}{\volt} met stappen van \SI{0.01}{\volt}.
 
-\subsection{Booglengte van één periode van een sinus}
+\subsection{Booglengte van één periode van een sinus}[C]
 We willen graag de booglengte weten van één periode van een sinus. We gaan uit van de functie $f(x) = \sin x$. Eén periode van de sinus is getekend in de onderstaande figuur.
 
 \begin{figure}[H]
@@ -1217,6 +1241,7 @@ We willen graag de booglengte weten van één periode van een sinus. We gaan uit
     \draw[color=blue,samples=51,semithick]   plot (\x,{sin(\x r)})   node[right] {$f(x) = \sin x$};
 \end{tikzpicture}%
 \end{figure}
+
 Nu is de booglengte $s$ exact uit te rekenen met de integraal:
 
 \begin{equation*}
@@ -1265,6 +1290,38 @@ Als we nu alle lengtes van de lijnstukken optellen, benaderen we de booglengte v
 Schrijf een programma dat de lengte van \'e\'en periode van de sinus bepaalt. Het aantal stappen moet worden ingevoerd als een geheel getal $n$ ($n>1$).
 
 
+\subsection{Oppervlakte bepalen}[D]
+Gegeven is de functie:
+
+\begin{equation*}
+f(x) = -\dfrac{1}{10}x^3 + \dfrac{1}{2}x^2
+\end{equation*}
+
+De functie is te zien in onderstaande figuur voor de grenzen $x=0$ tot $x=5$.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+    \begin{axis}[
+    axis background/.style={fill=yellow!30},
+    axis x line=middle,
+    axis y line=middle,
+    ymax=2.1, ymin=-1.1]
+    \addplot[name path=f, color=blue,samples=51,semithick, domain=-1.3:6] plot (\x, {-0.1*\x^3+0.5*\x^2});
+    \path[name path=xaxis] (axis cs:-1,0) -- (axis cs:6,0);
+    \addplot [thick, fill=blue, fill opacity=0.25]
+                  fill between[of=f and xaxis, soft clip={domain=0:5}];
+    \node[right] at (axis cs: 4.5,1.5) {$f(x)$};
+    \node at (axis cs: 2.5,-0.7) {$O$};
+    \draw[-Circle] (axis cs: 2.5,-0.6) -- (axis cs: 3,1);
+    \end{axis}
+\end{tikzpicture}%
+\end{figure}
+
+Schrijf een programma dat de oppervlakte van de functie berekent binnen het domein $x=0$ tot en met $x=5$. Dit is in de figuur aangegeven met de lichtblauwe kleur. De oppervlakte is aangegeven met de letter \textsl{O}. Tip: lees het boek. Overigens is het antwoord exact $125/24 \approx 5,2083\cdots$
+
+
+\clearpage
 \section{Beslissingsopdrachten (\texttt{if}, \texttt{switch})}
 
 \subsection{Inleiding}
@@ -1272,7 +1329,7 @@ In de opdrachten van dit hoofdstuk wordt gevraagd een programma te schrijven, wa
 
 Maak een project aan en plaats daarin de onderstaande code. Laat zien dat het werkt.
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 #include <stdio.h>
 
 int main(void){
@@ -1282,6 +1339,7 @@ int main(void){
         printf("Geef je cijfer: ");
         scanf("%d", &cijfer);
     } while (cijfer < 0 || cijfer > 10);
+    
     switch (cijfer) {
         case 10:
         case 9:
@@ -1302,43 +1360,57 @@ int main(void){
 }
 \end{lstlisting}
 
-\letop
+Let bij het \lstinline|switch|-statement gebruik wordt gemaakt van het \lstinline|break|-statement. Hierdoor wordt de \lstinline|switch| direct verlaten. Soms is het nodig om meerdere constanten samen te nemen. Dan moet je geen \lstinline|break|-statement gebruiken. Zie het voorbeeld.
 
-\subsection{Naam van de maand afdrukken}
+Een \lstinline|switch| alleen interessant als je moet testen op meerdere mogelijkheden van één variabele. Een \lstinline|if| is veel veelzijdiger.
+ 
+\letop
+\clearpage
+
+\subsection{Grootste getal}[A]
+Schrijf een programma dat drie gehele getallen inleest het het grootste van de drie getallen afdrukt. 
+
+\subsection{Een na grootste getal}[A]
+Schrijf een programma dat het op één na grootste getal bepaalt uit aan aantal opgegeven \textsl{gehele} getallen. Vraag eerst aan de gebruiker om hoeveel getallen het gaat.
+
+\subsection{Kleinste en één na kleinste getal}[B]
+Schrijf een programma dat het kleinste en één na kleinste getal bepaalt uit een rij van positieve getallen. De rij wordt afgesloten met het getal 0.
+
+\subsection{Naam van de maand afdrukken}[A]
 Ontwerp een programma dat de gebruiker vraagt om positieve gehele getallen tussen 1 en 12 (inclusief) in te voeren en de bijbehorende naam van de maand af te drukken. Dit programma moet net zo lang getallen inlezen totdat het getal 0 wordt ingevoerd. Dan moet het programma stoppen. Bij invoeren van een te groot of te klein getal moet \lstinline|"onbekende maand"| afgedrukt worden. 
  
-\subsection{Grootste getal}
-Ontwerp een programma dat drie gehele getallen inleest het het grootste van de drie getallen afdrukt.
+\subsection{Cijfer als woord afdrukken}[A]
+Schrijf een programma dat een cijfer (0 t/m 9) van het toetsenbord inleest en dit cijfer als woord afdrukt. Dit moet het programma net zo lang doen tot het getal $-1$ is ingevoerd. Elke andere combinatie moet leiden tot het woord \lstinline|"onbekend cijfer"|.
  
-\subsection{Verandering van ingevoerde getallen}
+\subsection{Verandering van ingevoerde getallen}[B]
 Ontwerp een programma dat aangeeft of een ingevoerd geheel getal \textsl{veranderd} is ten opzichte van het vorige ingevoerde getal. Let op: het eerste ingevoerde getal heeft geen voorganger dus kan niet bepaald worden of het veranderd is. Het getal 0 zorgt ervoor dat het programma stopt.
 
-\subsection{Even en oneven}
+\subsection{Even en oneven}[A]
 Ontwerp een programma dat de gebruiker vraagt om positieve gehele getallen in te voeren. Dit programma moet net zo lang getallen inlezen totdat het getal 0 wordt ingevoerd. Hierna moet het programma afdrukken hoeveel even en hoeveel oneven getallen door de gebruiker zijn ingevoerd. Als de gebruiker negatieve getallen invoert dan moeten die niet worden meegeteld. Bedenk goed met welke invoerreeksen je dit programma moet testen om de correcte werking aan te tonen. Laat de invoerreeksen die je hebt gebruikt ook aan je practicumdocent zien.
 
 Tip: Een even getal is deelbaar door 2 en een oneven getal is niet deelbaar door 2. Als een getal $x$ deelbaar is door 2 dan is $x$ \% 2 gelijk aan 0. Als een getal $y$ niet deelbaar is door 2 dan is $y$ \% 2 gelijk aan 1. Zie het boek voor uitleg over de \%-operator.
 
 Verzin zelf een aantal testreeksen. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Voldoende en onvoldoende}
+\subsection{Voldoende en onvoldoende}[B]
 Ontwerp een programma dat de gebruiker vraagt om positieve gehele getallen in te voeren met een maximum van 10. Dit programma moet net zo lang getallen inlezen totdat het getal 0 wordt ingevoerd. Hierna moet het programma afdrukken hoeveel voldoendes (6$\cdots$10) en hoeveel onvoldoendes (1$\cdots$5) door de gebruiker zijn ingevoerd. Als de gebruiker negatieve getallen of getallen groter dan 10 invoert dan moeten die door het programma niet worden meegeteld. Bedenk goed met welke invoerreeksen je dit programma moet testen om de correcte werking aan te tonen. Laat de invoerreeksen die je hebt gebruikt ook aan je practicumdocent zien.
 
 Verzin zelf een aantal testreeksen. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Aantal ingevoerde cijfers afdrukken}
+\subsection{Aantal ingevoerde cijfers afdrukken}[B]
 Schrijf een programma dat om ingevoerde cijfers (0 t/m 9) vraagt en bijhoudt hoe vaak elk cijfer is ingevoerd. Na invoer van het speciale cijfer $-1$ moeten de aantallen van de ingevoerde cijfers netjes worden afgedrukt.
 
-\subsection{PIN-code raden}
+\subsection{PIN-code raden}[B]
 Schrijf een programma dat de gebruiker vraagt om een 4-cijferige PIN-code correct in te voeren. De gebruiker mag maximaal drie keer invoeren. Als na de derde keer een verkeerde PIN-code is ingevoerd, moet een foutmelding op het scherm volgen. Als de PIN-code correct is ingevoerd, moet dat natuurlijk gemeld worden.
 
 Voor het genereren van een willekeurig getal tussen 0 en 9999, kan de functie \lstinline|rand| gebruikt worden. Zie voor een eenvoudige uitleg \url{https://www.geeksforgeeks.org/rand-and-srand-in-ccpp/}.
 
-\subsection{Overwerk}
+\subsection{Overwerk}[A]
 Overwerk kan vervelend zijn maar in veel gevallen levert het extra salaris op. De nominale werkweek in Nederland is 40 uur. Daarboven wordt (vaak) gesproken over overwerk. Tussen 40 uur en 50 uur wordt gesproken van matig overwerk, boven de 50 uur wordt gesproken van veel overwerk.
 
 Schrijf een programma dat het salaris van een werkweek bepaalt. Eerst wordt aan de gebruiker gevraagd wat het standaard tarief is van één uur werk. Alle uren tot 40 uur worden met dit tarief berekend. De uren die tussen 40 uur en 50 uur worden gewerkt leveren 1,5 keer het 40-uurs-tarief op. Uren boven de 50 uur leveren 2 maal het 40-uurs-tarief op. Zorg ervoor dat alleen een positief aantal uren en uurtarief kan worden opgegeven.
 
-\subsection{ABC-formule}
+\subsection{ABC-formule}[B]
 Schrijf een programma dat de wortels van een kwadratische vergelijking bepaalt. Een kwadratische vergelijking heeft de gedaante:
 
 \begin{equation*}
@@ -1355,31 +1427,24 @@ De term $b^2-4ac$ onder het wortelteken staat bekend als de \textsl{discriminant
 
 Schrijf een programma dat de gebruiker om de waarden van $a$, $b$ en $c$ vraagt en de waarden van $x_1$ en $x_2$ berekent.
 
-\subsection{Simpele rekenmachine}
+\subsection{Simpele rekenmachine}[B]
 Rekenen doen we al sinds mensenheugenis. Vooral in de elektrotechniek is rekenen onontbeerlijk. We gebruiken daarbij een rekenmachine met veel functies. Schrijf een programma dat een zeer eenvoudige rekenmachine implementeert. De rekenmachine kan slechts optellen, aftrekken, vermenigvuldigen en delen. Het programma vraagt de gebruiker om op één regel de twee getallen, gescheiden door een operator ($*$, $+$, $-$ en $/$), op te geven. Voorbeeld:
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 Geef twee getallen gescheiden door een operator: 5.2 * 4.5
 De vermenigvuldiging van 5.2 en 4.5 is 23.4
 \end{lstlisting}
 
 Maak gebruik van het \lstinline|switch|-statement.
 
-\subsection{Bepalen schrikkeljaar}\label{sec:bepalen-schrikkeljaar}
-Ontwerp een programma dat de gebruiker vraagt om datums in het formaat \textsl{dd mm yyyy} (dag gevolgd door maand gevolgd door jaartal, alle in cijfers) in te voeren. De datum moet opnieuw worden afgedrukt, maar nu moet de maand als woord worden afgedrukt. Daarnaast moet het programma afdrukken welke dag in het jaar het is en of het een schrikkeljaar is. De invoer \texttt{24 11 2011} levert dus op: \texttt{24 november 2011, dag 328 van het jaar, geen schrikkeljaar}. Er moet uiteraard getest worden of een gebruiker een geldige datum heeft ingevoerd. Het programma herhaalt het omzetten totdat de speciale datum \texttt{00 00 0000} ingevoerd wordt. Dan moet het programma stoppen. Maak gebruik van een \lstinline|switch|-statement. Bedenk goed met welke datums je dit programma moet testen om de correcte werking aan te tonen. Laat de datums die je hebt gebruikt om te testen ook aan je practicumdocent zien.
-
-Het bepalen of een bepaald jaar en schrikkeljaar is kan je vinden op \url{http://www.daniweb.com/software-development/c/threads/233325}
-
-Vind zelf een aantal testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
-
-\subsection{Afdrukken binair getal}
+\subsection{Afdrukken binair getal}[C]
 Het afdrukken van een binair getal is in standaard C niet mogelijk. Natuurlijk zijn er uitbreidingen in C-compilers, maar daar kan je niet van uitgaan. Ontwerp een programma dat een geheel getal tussen 0 en 255 omzet naar een 8-bits binair getal. Bedenk goed met welke getallen je dit programma moet testen om de correcte werking aan te tonen. Laat de getallen die je hebt gebruikt om te testen ook aan je practicumdocent zien.
 
 Hint: om te kijken of het hoogste bit (bit 7; we nummeren van 0 t/m 7) een 0 of 1 is, kan je het getal vergelijken met 128, de hoogste macht in een 8-bit binair getal. Is het getal 128 of groter, dan is het meest significante bit 1, anders is het 0. Zo kan je alle bits afgaan. Gebruik een \lstinline|for|-lus om de oplossing efficiënt te programmeren.
 
 Zorg ervoor dat het aantal af te drukken bits eenvoudig gewijzigd kan worden. Neem in je code bijvoorbeeld de variabele \lstinline|aantal_bits| op:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 int aantal_bits = 16;
 \end{lstlisting}
 
@@ -1387,7 +1452,7 @@ om een ingevoerd getal met 16 bits af te drukken.
 
 Vind zelf een aantal testwaardes. 
 
-\subsection{Windsnelheden}
+\subsection{Windsnelheden}[A]
 Varen op de wereldse zeeën is iets wat de Nederlanders al generaties doen. Om een goed beeld te hebben van de kracht van de wind is rond 1805 de zogenaamde Beaufort-schaal ingevoerd (Bf). Tegenwoordig werken we meer met snelheden in km/h. Toch wordt er nog veel met Beaufort gewerkt.
 
 Ontwerp een programma dat de gebruiker vraagt om een windsnelheid in km/h (geheel getal). Het programma moet dan de windsnelheid in Beaufort afdrukken. Het programma moet dit steeds herhalen. Het programma stopt als het getal $-1$ wordt ingevoerd als windsnelheid. Bedenk goed met welke getallen je dit programma moet testen om de correcte werking aan te tonen. Laat de getallen die je hebt gebruikt om te testen ook aan je practicumdocent zien.
@@ -1396,19 +1461,19 @@ Je kan een conversietabel vinden op \url{https://keesvdm.home.xs4all.nl/boot/win
 
 Hou de testwaardes bij de hand voor tijdens het nakijken van de opdracht.
 
-\subsection{Geschreven letters}
+\subsection{Geschreven letters}[C]
 Ontwerp een programma dat een geheel getal tussen 0 en 100 (inclusief) inleest en dit getal daarna als woord afdrukt. Als voorbeeld: de invoer \texttt{21} levert als uitvoer \texttt{eenentwintig}. Het programma blijft dit doen totdat het getal $-1$ wordt ingevoerd. Ontwerp dit programma zo efficiënt mogelijk. Bedenk goed met welke getallen je dit programma moet testen om de correcte werking aan te tonen. Laat de getallen die je hebt gebruikt om te testen ook aan je practicumdocent zien.
 
 Test het programma met:
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 Geef getal tussen 0 en 100: 21
 Het getal is: eenentwintig
 \end{lstlisting}
 
 Geef zelf ook een aantal testwaardes. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Stijgen}
+\subsection{Stijgen}[C]
 Ontwerp een programma dat de gebruiker vraagt om positieve gehele getallen in te voeren. Dit programma moet net zo lang getallen inlezen totdat het getal 0 wordt ingevoerd. Op dat moment moet het programma afdrukken hoe vaak de invoer van de gebruiker ``gestegen'' is bij het invoeren. Als de gebruiker een getal invoert dat groter is dan zijn/haar vorige invoer dan tellen we dat als een stijging. Als de gebruiker negatieve getallen invoert dan moeten deze na het inlezen worden overgeslagen. Bedenk goed met welke invoerreeksen je dit programma moet testen om de correcte werking aan te tonen. Laat de invoerreeksen die je hebt gebruikt ook aan je practicumdocent zien.
 
 Tip: in de volgende tabel zijn enkele invoerreeksen met de gewenste uitvoer gegeven. Test of je programma werkt door de onderstaande reeksen in te voeren.
@@ -1424,21 +1489,33 @@ Invoer                             & Correcte uitvoer & Verklaring \\ \hline
 
 Verzin zelf een aantal testreeksen. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Tekens tellen}
+\subsection{Tekens tellen}[B]
 Ontwerp een programma dat een reeks tekens inleest en de tekens classificeert als letters, cijfers en leestekens. Het aantal ingevoerde letters, cijfers en leestekens moeten worden afgedrukt. Bij letters moet nog onderscheid worden gemaakt tussen klinkers en medeklinkers. Bedenk goed met welke invoerreeksen je dit programma moet testen om de correcte werking aan te tonen. Laat de invoerreeksen die je hebt gebruikt ook aan je practicumdocent zien. Leestekens zijn te vinden op \url{http://nl.wikipedia.org/wiki/Leesteken}.
 
 Tip: het testen van het type van een teken kan heel eenvoudig met de karakter classificatie functies uit de standaard C library, zie \url{http://en.wikipedia.org/wiki/Ctype.h}.
 
 Verzin zelf een aantal testreeksen. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Dag van de week}
-Ontwerp een programma dat de gebruiker vraagt om datums in het formaat \textsl{dd mm yyyy} (dag gevolgd door maand gevolgd door jaartal, alle in cijfers) in te voeren. Daarna moet het programma de dag van de week voor deze datum bepalen. Er moet uiteraard getest worden of een gebruiker een geldige datum heeft ingevoerd. Het programma herhaalt het hiervoor beschreven proces totdat de speciale datum \texttt{00 00 0000} ingevoerd wordt. Dan moet het programma stoppen. Maak gebruik van een \lstinline|switch|-statement. Bedenk goed met welke datums je dit programma moet testen om de correcte werking aan te tonen. Laat de datums die je hebt gebruikt om te testen ook aan je practicumdocent zien.
+\subsection{Dag van de week}[D]
+Ontwerp een programma dat de gebruiker vraagt om datums in het formaat \textsl{dd mm yyyy} (dag gevolgd door maand gevolgd door jaartal, alle in cijfers) in te voeren. Deze datum getest worden op geldigheid. Daarna moet het programma de dag van de week voor deze datum bepalen. Er moet uiteraard getest worden of een gebruiker een geldige datum heeft ingevoerd. Het programma herhaalt het hiervoor beschreven proces totdat de speciale datum \texttt{00 00 0000} ingevoerd wordt. Dan moet het programma stoppen. Maak gebruik van een \lstinline|switch|-statement. Bedenk goed met welke datums je dit programma moet testen om de correcte werking aan te tonen. Laat de datums die je hebt gebruikt om te testen ook aan je practicumdocent zien.
 
 Een algoritme voor het vinden van de weekdag van een datum is te vinden op \url{https://en.wikipedia.org/wiki/Determination_of_the_day_of_the_week#Sakamoto's_methods}
 
 Zoek zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
+\subsection{Bepalen schrikkeljaar}[D]
+\label{sec:bepalen-schrikkeljaar}
+Ontwerp een programma dat de gebruiker vraagt om datums in het formaat \textsl{dd mm yyyy} (dag gevolgd door maand gevolgd door jaartal, alle in cijfers) in te voeren. Deze datum getest worden op geldigheid. De datum moet opnieuw worden afgedrukt, maar nu moet de maand als woord worden afgedrukt. Daarnaast moet het programma afdrukken welke dag in het jaar het is en of het een schrikkeljaar is. De invoer \texttt{24 11 2011} levert dus op: \texttt{24 november 2011, dag 328 van het jaar, geen schrikkeljaar}. Er moet uiteraard getest worden of een gebruiker een geldige datum heeft ingevoerd. Het programma herhaalt het omzetten totdat de speciale datum \texttt{00 00 0000} ingevoerd wordt. Dan moet het programma stoppen. Maak gebruik van een \lstinline|switch|-statement. Bedenk goed met welke datums je dit programma moet testen om de correcte werking aan te tonen. Laat de datums die je hebt gebruikt om te testen ook aan je practicumdocent zien.
 
+Het bepalen of een bepaald jaar en schrikkeljaar is kan je vinden op \url{http://www.daniweb.com/software-development/c/threads/233325}
+
+Vind zelf een aantal testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
+
+\subsection{Extra dagen}[D]
+Schrijf een programma dat vraagt om een geldige datum in het formaat \textsl{dd mm yyyy} (dag gevolgd door maand gevolgd door jaartal, alle in cijfers). Deze datum getest worden op geldigheid. Daarna wordt gevraagd om een extra aantal dagen (alleen dagen). Deze dagen moeten worden opgeteld bij de ingevoerde datum. Druk vervolgens deze nieuwe datum af. Let erop dat de nieuwe datum geldig moet zijn.
+
+
+\clearpage
 \section{Functies}
 
 \subsection{Inleiding}
@@ -1446,7 +1523,7 @@ Deze opdracht gaat over het gebruik van functies. Veel voorkomende handelingen, 
 
 Na de laatste theorieles in week 3 heb je de huiswerkopdracht gekregen om een recursieve functie te schrijven die het $n^e$ getal uit de \textsl{Fibonacci-rij} (\url{https://nl.wikipedia.org/wiki/Rij_van_Fibonacci}) berekent. Een mogelijke oplossing is:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 #include <stdio.h>
 
 int fib(int n) {
@@ -1478,17 +1555,23 @@ Maak een project aan en plaats daarin de bovenstaande code. Laat zien dat het we
 
 Let erop dat de functie \lstinline|fib()| een \textsl{stopcriterium} moet hebben, d.w.z.\@ dat het herhaald aanroepen van \lstinline|fib()| (recursie) stopt als aan een bepaalde voorwaarde wordt voldaan. In het bovenstaande programma is dat als variabele $n$ kleiner is dan twee. Vervang eens voor de grap de functie \lstinline|fib()| met:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 int fib(int n) {
       return fib(n-1) + fib(n-2);
 } 
 \end{lstlisting}
 
-
-
 \letop
+\clearpage
 
-\subsection{Catalan-getal (iteratief)}
+
+\subsection{Vermenigvudigen}[A]
+Schrijf een functie die twee argumenten meekrijgt en de vermenigvuldiging van deze twee argumenten teruggeeft. Schrijf een hoofdprogramma om de functie te testen.
+
+\subsection{Vermenigvuldigen en delen}[A]
+Schrijf een functie die drie argumenten meekrijgen en het resultaat van de vermenigvuldiging van de eerste twee argumenten gedeeld door het derde argument teruggeeft. Let op dat delen door 0 niet kan. Schrijf een hoofdprogramma om de functie te testen.
+
+\subsection{Catalan-getal (iteratief)}[B]
 De Catalan-getallen zijn natuurlijke getallen die voorkomen in diverse telproblemen. Het $n^e$ Catalan-getal wordt weergegeven als $C_n$. Bijvoorbeeld: het aantal manieren waarop je $n$ paren haakjes correct kunt opschrijven is gelijk aan $C_n$. Zie voor verdere informatie: \url{https://en.wikipedia.org/wiki/Catalan_number}.
 
 $C_n$ kan berekend worden met behulp van de faculteitsfunctie: 
@@ -1505,7 +1588,7 @@ C_n = \dfrac{(2n)!}{(n+1)!n!}
 
 Test het programma met:
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 0 geeft 1
 5 geeft 42
 7 geeft 429
@@ -1513,7 +1596,7 @@ Test het programma met:
 10 geeft 16796
 \end{lstlisting}
 
-\subsection{Catalan-getal (recursief)}
+\subsection{Catalan-getal (recursief)}[B]
 De Catalan-getallen zijn natuurlijke getallen die voorkomen in diverse telproblemen. Het $n^e$ Catalan-getal wordt weergegeven als $C_n$. Bijvoorbeeld: het aantal manieren waarop je $n$ paren haakjes correct kunt opschrijven is gelijk aan $C_n$. Zie voor verdere informatie: \url{https://en.wikipedia.org/wiki/Catalan_number}.
 
 $C_n$ kan ook recursief berekend worden:
@@ -1530,7 +1613,7 @@ C_n = \dfrac{2(2n-1)}{n+1}C_{n-1} \text{ voor } n \geq 1 \text{ en } C_0=1
 
 Test het programma met:
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 0 geeft 1
 5 geeft 42
 7 geeft 429
@@ -1538,7 +1621,7 @@ Test het programma met:
 10 geeft 16796
 \end{lstlisting}
 
-\subsection{Vermoeden van Collatz}
+\subsection{Vermoeden van Collatz}[B]
 Het vermoeden van Collatz is één van de bekende onopgeloste vraagstukken in de getaltheorie.
 Laat $n$ ($n>0$) een willekeurig geheel getal zijn. Definieer een functie $f_n$ als:
 
@@ -1566,7 +1649,7 @@ Tip: Je kunt de functie \lstinline|f| aanpassen zodat de waarde $-1$ wordt terug
 
 Een mogelijke uitvoering van het programma zie je hieronder:
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 Geef geheel getal groter dan 1: 6
 Stap: 1, n = 3
 Stap: 2, n = 10
@@ -1582,7 +1665,7 @@ Aantal stappen voor 6 is 8
 
 Bereken zelf ook een aantal testwaardes. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Digitale techniek}
+\subsection{Digitale techniek}[C]
 In de digitale wordt gebruik gemaakt van de bekende basispoorten AND, OR, NOT, NAND en NOR. Daarnaast worden ook de veel voorkomende poorten EXOR en EXNOR gebruikt, alhoewel dit geen basispoorten zijn.
 
 Een zekere docent Digitale Techniek wil testen of zijn studenten een digitale schakeling met basispoorten correct kunnen doorrekenen, maar natuurlijk wil hij zelf niet teveel rekenwerk doen. Daarom wil hij een programma schrijven om dit doorrekenwerk te versnellen. Helaas heeft hij door de drukke werkzaamheden geen tijd. 
@@ -2340,7 +2423,7 @@ Bedenk zelf handige namen voor de functies van AND, OR ... en zorg ervoor dat 2-
 
 Zorg ervoor dat er zo efficiënt mogelijk met het opstellen van de functies wordt omgegaan. Bedenk bijvoorbeeld dat een NAND opgebouwd is uit een AND en een NOT. Het is dus niet nodig een volledige functie voor de NAND te maken, want je kunt gebruik maken van de eerder geschreven functies voor AND en NOT. Alleen de functies voor OR2, AND2 en NOT moeten uitgewerkt worden, de rest van de functies zijn af te leiden uit de eerst genoemde functies. 
 
-\subsection{Maximale}
+\subsection{Maximale}[A]
 Het bepalen van een maximum uit een reeks getallen wordt vaak gebruikt. Denk hierbij aan het bepalen van de maximale temperatuur van de dag.
 
 Ontwerp een programma dat aan de gebruiker een vijftal gehele getallen vraag en het maximum van deze getallen afdrukt. Hiervoor moet een aantal functies geschreven en gebruikt worden:
@@ -2353,7 +2436,7 @@ Ontwerp een programma dat aan de gebruiker een vijftal gehele getallen vraag en 
 
 Verzin zelf meerdere testen. Zorg dat je deze testen bij de hand hebt tijdens het nakijken.
 
-\subsection{Gemiddelde}
+\subsection{Gemiddelde}[A]
 Schrijf een programma dat het gemiddelde van vijf getallen uitrekent.
 
 Er moet een functie \lstinline|leesGetal| worden geschreven die een geheel getal inleest (netjes eerst tekst afdrukken dat een getal moet worden opgegeven), en dit ingelezen getal teruggeeft. Er mogen alleen getallen worden ingelezen: letters en leestekens moeten worden genegeerd.
@@ -2364,33 +2447,7 @@ Het hoofdprogramma moet de bovenstaande functies gebruiken.
 
 Verzin zelf meerdere testen. Zorg dat je deze testen bij de hand hebt tijdens het nakijken.
 
-%%%\subsection{Grootste gemene deler}
-%%%Er zijn toepassingen waarbij de grootste gemene deler (ggd) van twee positieve getallen bepaald moet worden. De grootste gemene deler van twee gehele getallen is het grootste gehele getal waar deze twee gehele getallen door gedeeld kunnen worden. Zo is de ggd van 24 en 54, geschreven als ggd(24, 54), gelijk aan 6.
-%%%
-%%%Euclides heeft in 300 v.c.\@ een algoritme beschreven (waarschijnlijk niet door hem bedacht) voor het vinden van de ggd. Het is gebaseerd op het recursief aanroepen van een functie:
-%%%
-%%%\begin{equation*}
-%%%\ggd(a,b)= \begin{cases}
-%%%a &\text{als } b = 0 \\
-%%%\ggd(b, a\:\mathrm{mod}\; b) &\text{als } b > 0
-%%%\end{cases}
-%%%\end{equation*}
-%%%
-%%%Schrijf een programma dat de getallen $a$ en $b$, beide geheel een groter dan nul, inleest en de ggd berekent en afdrukt met behulp van de bovenstaande recursieve identiteit.
-%%%
-%%%Er moet een functie \lstinline|leesGetal| worden geschreven die een geheel getal inleest (netjes eerst tekst afdrukken dat een getal moet worden opgegeven), en dit ingelezen getal teruggeeft. Er mogen alleen getallen worden ingelezen: letters en leestekens moeten worden genegeerd.
-%%%
-%%%Test het programma met:
-%%%
-%%%\begin{lstlisting}[language=,literate=]
-%%%Geef eerste getal: 24
-%%%Geef tweede getal: 54
-%%%De grootste gemene deler is: 6
-%%%\end{lstlisting}
-%%%
-%%%Verzin zelf meerdere testen. Zorg dat je deze testen bij de hand hebt tijdens het nakijken.
-
-\subsection{Kleinste gemene veelvoud}
+\subsection{Kleinste gemene veelvoud}[B]
 Er zijn toepassingen waarbij de \textsl{kleinste gemene veelvoud} (kgv) van twee positieve getallen bepaald moet worden, bijvoorbeeld bij het gelijknamig maken van twee breuken. Het kgv van twee getallen is het kleinste positieve gehele getal dat een veelvoud is van beide getallen, dus het kleinste positieve gehele getal, waarvan beide getallen deler zijn.
 
 Het kgv van twee getallen $a$ en $b$ kan berekend worden met de formule:
@@ -2414,7 +2471,7 @@ Schrijf een functie \lstinline|int kgv(int a, int b)| die de kgv van twee getall
 Schrijf een programma dat de getallen $a$ en $b$, beide geheel een groter dan nul, inleest en de kgv berekent en afdrukt met behulp van de bovenstaande geformuleerde functies voor de kgv en ggd. Zorg ervoor dat bij het inlezen van de getallen voor $a$ en $b$ getest wordt of deze getallen groter zijn dan~0.
 
 
-\subsection{Wortel schieten}
+\subsection{Wortel schieten}[A]
 De Babyloniërs hebben heel lang geleden een methode ontwikkeld voor het vinden van de wortel van een positief getal (of nul, da’s niet zo moeilijk). Het is gebaseerd op het herhaald doorrekenen van een eenvoudige functiebeschrijving:
 
 \begin{align*}
@@ -2436,51 +2493,51 @@ Schrijf een programma dat de wortel van een getal groter dan of gelijk aan nul u
 
 Verzin zelf meerdere testen. Zorg dat je deze testen bij de hand hebt tijdens het nakijken.
 
-\subsection{Som van de cijfers en modulo 9}
-Gegeven is de functie \lstinline|leesCijfer| die een integer cijfer inleest. 
+\subsection{Som van de cijfers en modulo 9}[B]
+Gegeven is de functie \lstinline|leesCijfer| die een cijfer inleest. 
 
-\begin{lstlisting}
-#include <stdio.h>
-
-/* Dit programma demonstreert hoe een
-   groot getal cijfer voor cijfer kan
-   worden ingelezen */
-
-int leesCijfer(void) {
-    switch (getchar()) {
-        case '0': return 0;
-        case '1': return 1;
-        case '2': return 2;
-        case '3': return 3;
-        case '4': return 4;
-        case '5': return 5;
-        case '6': return 6;
-        case '7': return 7;
-        case '8': return 8;
-        case '9': return 9;
-        default: return -1;
-    }
-}
-
-int main(void) {
-    int cijfer;
-    printf("Type een groot getal:\n");
-    do {
-        cijfer = leesCijfer();
-        if (cijfer != -1) {
-            printf("%d ", cijfer);
-        }
-    } while (cijfer != -1);
-    
-    return 0;
-}
-\end{lstlisting}
+%\begin{lstlisting}[caption=]
+%#include <stdio.h>
+%
+%/* Dit programma demonstreert hoe een
+%   groot getal cijfer voor cijfer kan
+%   worden ingelezen */
+%
+%int leesCijfer(void) {
+%    switch (getchar()) {
+%        case '0': return 0;
+%        case '1': return 1;
+%        case '2': return 2;
+%        case '3': return 3;
+%        case '4': return 4;
+%        case '5': return 5;
+%        case '6': return 6;
+%        case '7': return 7;
+%        case '8': return 8;
+%        case '9': return 9;
+%        default: return -1;
+%    }
+%}
+%
+%int main(void) {
+%    int cijfer;
+%    printf("Type een groot getal:\n");
+%    do {
+%        cijfer = leesCijfer();
+%        if (cijfer != -1) {
+%            printf("%d ", cijfer);
+%        }
+%    } while (cijfer != -1);
+%    
+%    return 0;
+%}
+%\end{lstlisting}
 
 Schrijf een functie \lstinline|leesEnBerekenSom| die de som van de cijfers van een groot getal bepaalt. 
 
 BV. 2348967 -> 2+3+4+8+9+6+7 = 39
 
-Gegeven is dat dit getal zo groot is dat het niet in een integer variabele past. Daarom wordt het getal in de functie \lstinline|leesEnBerekenSom| cijfer voor cijfer ingelezen met behulp van de functie \lstinline|leescijfer| die gegeven is. Als de functie \lstinline|leesCijfer| geen geldig cijfer in kan lezen dan geeft deze functie de waarde $-1$ terug.
+Gegeven is dat dit getal zo groot is dat het niet in een integer variabele past. Daarom wordt het getal in de functie \lstinline|leesEnBerekenSom| cijfer voor cijfer ingelezen met behulp van de functie \lstinline|leescijfer|. Als de functie \lstinline|leesCijfer| geen geldig cijfer in kan lezen dan geeft deze functie de waarde $-1$ terug.
 
 Schrijf vervolgens de functie \lstinline[literate=]|leesEnBerekenMod9| die een groot getal inleest en de modulo 9 van dit getal berekent. Gegeven is dat dit getal zo groot is dat het niet in een integer variabele past. De modulo 9 van een getal is gelijk aan de modulo 9 van de som van de cijfers van dat getal. Je kunt dus gebruik maken van de functie \lstinline|leesEnBerekenSom|.
 
@@ -2488,7 +2545,7 @@ Schrijf ook een hoofdprogramma om de functies \lstinline|leesEnBerekenSom| en \l
 
 Test het programma met:
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 Geef (groot getal): 12345678901234567890
 Som is: 90
 Mod 9 is: 0
@@ -2496,14 +2553,14 @@ Mod 9 is: 0
 
 %Bij invoer van het getal: 12345678901234567890 moet de functie leesEnBerekenSom de waarde 90 teruggeven en moet de functie leesEnBerekenMod9 de waarde 0 teruggeven.
 
-\subsection{Isolated prime}
+\subsection{Isolated prime}[C]
 Een priemgetal is een getal dat slechts twee delers heeft: het getal 1 en het getal zelf. Zo is het getal 11 een priemgetal want het is alleen deelbaar door 1 en door 11.
 
 Een \textsl{isolated prime} is een priemgetal dat geflankeerd wordt door twee niet-priemgetallen. Dat wil zeggen dat als $p$ en priemgetal is, dan zijn $p-2$ en $p+2$ dat niet. Neem het getal 23. Dit is een isolated prime, want 21 en 25 zijn geen priemgetallen.
 
 Schrijf een programma dat een geheel getal vraagt (getal $>$ 1, want 0 en 1 zijn geen priemgetallen) en afdrukt of het opgegeven getal een isolated prime is. In het programma moet een functie \lstinline|int isprime(int n)| komen die bepaalt of getal $n$ een priemgetal is. Daarnaast moet er een functie \lstinline|int isisolatedprime(int n)| die bepaalt of $n$ een isolated prime is.
 
-\subsection{De Ackermann-functie}
+\subsection{De Ackermann-functie}[C]
 In de jaren `20 van de vorige eeuw is een functie bedacht door Wilhelm Ackermann. Het is een recursieve functie van twee variabelen $m$ en $n$ (beide $\geq 0$). De functie is gedefinieerd als:
 
 \begin{equation*}
@@ -2517,7 +2574,7 @@ A(m-1, A(m, n-1)) & \mbox{if } m > 0 \mbox{ and } n > 0.
 
 Schrijf een programma dat de getallen $m$ en $n$, beide geheel een groter dan of gelijk aan nul, inleest en met behulp van een functie de Ackermann-functie berekent en afdrukt met behulp van de bovenstaande recursieve identiteit.
 
-\subsection{sinc}
+\subsection{The \texttt{sinc}-functie}[B]
 In analoge en digitale filters komt veelvuldig de sinc-functie voor. De functie is gedefinieerd als:
 
 \begin{equation*}
@@ -2526,12 +2583,12 @@ In analoge en digitale filters komt veelvuldig de sinc-functie voor. De functie 
 
 Schrijf een functie \lstinline|double sinc(double x)| die sinc-waarde bepaalt van het getal $x$. Druk de waarden af van $x$ en $\sinc(x)$ van 0,0 t/m 6,0 met een stapgrootte van 0,1.
 
-\subsection{Aantal delers van een geheel getal}
+\subsection{Aantal delers van een geheel getal}[C]
 In de getaltheorie komt een bepaalde klasse van getallen voor met de eigenschap dat zo'n getal alleen deelbaar is 1 en zichzelf. We noemen zo'n getal een \textsl{priemgetal}. Priemgetallen spelen een belangrijke rol bij encryptie.
 
 Schrijf een functie \lstinline|int aantal_delers(int getal)| die van het opgegeven getal het aantal delers bepaalt. Merk op dat 1 ook een deler is. Het getal moet groter zijn dan 1. Schrijf een hoofdprogramma dat de gebruiker vraagt een getal in te voeren (netjes een melding geven wat er gevraagd wordt en testen of het getal groter is dan 1) en het aantal delers afdrukt m.b.v.\@ de functie \lstinline|aantal_delers|.
 
-\subsection{Nulpunten van een functie bepalen}
+\subsection{Nulpunten van een functie bepalen}[C]
 Gegeven is de functie:
 
 \begin{equation}
@@ -2555,6 +2612,7 @@ De grafiek van de functie is te zien in de onderstaande figuur. We zien dat het 
 Schrijf een programma voor het vinden van de x-coördinaat. Maak gebruik van een functie om de y-coördinaat te berekenen bij een gegeven x-coördinaat. Maak gebruik van een functie die het nulpunt willekeurig dicht benaderd. De functie \lstinline|main| is dus zeer compact en roept alleen functies aan.
 
 
+\clearpage
 \section{Arrays}
 
 \subsection{Inleiding}
@@ -2564,8 +2622,7 @@ Een array is een lijst van variabelen van het zelfde type. Je kan een array inde
 
 Hieronder is een programma dat een aantal waarden inleest in een array en vervolgens het gemiddelde van deze waarden afdrukt (het is in dit geval eigenlijk niet nodig om de getallen in een array op te slaan). Maak een project aan en plaats daarin de onderstaande code. Laat zien dat het werkt.
 
-
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 #include <stdio.h>
 
 #define AANTAL 10
@@ -2578,7 +2635,6 @@ int main(void) {
     for (i = 0; i < AANTAL; i = i + 1) {
         do {
             printf("Geef temperatuur %d op: ", i + 1);
-            fflush(stdin);
         } while (scanf("%lf", &temperatuur[i]) != 1);
     }
 
@@ -2595,54 +2651,71 @@ int main(void) {
 }
 \end{lstlisting}
 
-\letop
+In het eerste deel van het programma worden de getallen ingelezen (dit mogen floating point-getallen zijn). In het tweede deel wordt het gemiddelde berekend van alle ingevoerde getallen. Het is eenvoudig om het aantal getallen aan te passen. We moeten dan de \textsl{macro} \lstinline|AANTAL| wijzigen. Om twintig getallen in te lezen, gebruiken we de regel:
 
-\subsection{Omkeren}
+\begin{lstlisting}[caption=]
+#define AANTAL 20
+\end{lstlisting}
+
+\letop
+\clearpage
+
+\subsection{Omkeren}[A]
 C kent geen primitief type voor een string (primitieve types zijn o.a. \lstinline|int| en \lstinline|double|). Een string met karakters in C is niets anders dan een array van \lstinline|char|’s, afgesloten met een nul-karakter (\lstinline|'\0'|). Er zijn veel functies beschikbaar voor het manipuleren van strings, zoals het bepalen van de lengte of het kopiëren van strings. Informatie is te vinden op \url{https://en.wikipedia.org/wiki/String.h}.
 
 Schrijf een programma dat een string inleest van het toetsenbord en deze string achterstevoren afdrukt. Hiervoor moet een functie \lstinline|reverse| worden geschreven met als parameter de string. Deze functie zorgt er voor dat de string achterstevoren wordt gezet. Het afdrukken gebeurt in het hoofdprogramma. Het gebruik van de functie \lstinline|strrev| is niet toegestaan.
 
 Verzin zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Voortschrijden}
+\subsection{Voortschrijden}[B]
 Het bijhouden van de temperatuur wordt al jaren gedaan. Meestal wordt hierbij dan een gemiddelde temperatuur berekend. Dit is eenvoudig, zie opgave~\ref{sec:inleidingarray}. Maar er is nog een soort gemiddelde: het voortschrijdend gemiddelde. Dit wordt bijvoorbeeld gebruikt bij beurskoersen\footnote{Zie \url{https://nl.wikipedia.org/wiki/Voortschrijdend_gemiddelde}}.
 
 Schrijf een programma dat steeds het voortschrijdend gemiddelde bepaalt van de laatste 10 koersstanden. Na elke berekening moet een nieuwe koerswaarde ($>$ 0) worden ingelezen. Gebruik een array om de koersstanden op te slaan.
 
 Verzin zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Histogram}
+\subsection{Vergelijken}[B]
+Schrijf een programma dat twee arrays van integers van gelijke lengte vergelijkt. De arrays zijn identiek (gelijk) als elk element van de eerste array overeenkomt met het element op dezelfde positie in de tweede array.
+
+\begin{lstlisting}[caption=]
+int rij1 = { 1, 7, 5, 3};
+int rij2 = { 1, 7, 5, 3};
+\end{lstlisting}
+
+zijn identiek omdat de lengte gelijk is en omdat elk element overeenkomt.
+
+\subsection{Histogram}[B]
 Schrijf een programma dat de gehele getallen 0 t/m 10 inleest en bijhoudt hoe vaak elk getal is ingevoerd. Getallen kleiner dan $-1$ of groter dan 10 moeten worden genegeerd. Het getal $-1$ sluit de invoerprocedure af. Daarna drukt het programma de aantallen af in de vorm van een histogram\footnote{Zie \url{https://en.wikipedia.org/wiki/Histogram}}. Dit kan bijvoorbeeld elegant met (een rij van) sterretjes. Let erop dat de uitvoer geschaald moet worden; het getal dat het meest is ingevoerd moet met 30 sterretjes worden afgedrukt. Het afdrukken mag horizontaal of verticaal.
 
 Verzin zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Sorteren met ``selection sort''}
+\subsection{Sorteren met ``selection sort''}[C]
 Schrijf een programma dat tien gehele getallen in een array inleest en deze getallen oplopend sorteert. Dat kan als volgt: zoek het minimum van alle getallen in de array en verwissel dit getal met het eerste getal in de array. Zoek vervolgens het minimum van de getallen met index 1 t/m 9 in de array en verwissel dit getal met het getal met de index 1 (het tweede getal) in de array. Zoek vervolgens het minimum van de getallen met index 2 t/m 9 in de array en verwissel dit getal met het getal met de index 2 in de array. Dit moet je herhalen totdat de gehele array gesorteerd is.
 
 NB: Dit algoritme wordt \textsl{selection sort} genoemd, het is een leuke programmeeroefening maar een erg inefficiënte sorteermethode.
 
 Verzin zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Palindroom}
+\subsection{Palindroom}[A]
 C kent geen primitief type voor een string (primitieve types zijn o.a. \lstinline|int| en \lstinline|double|). Een string met karakters is in C niets anders dan een array van \lstinline|char|’s, afgesloten met een nul-karakter (\lstinline|'\0'|). Er zijn veel functies beschikbaar voor het manipuleren van strings, zoals het bepalen van de lengte of het kopiëren van strings. Informatie is te vinden op \url{https://en.wikipedia.org/wiki/String.h}.
 
 Schrijf een programma dat een string inleest van het toetsenbord en bepaalt of deze string een palindroom\footnote{Zie \url{http://nl.wikipedia.org/wiki/Palindroom}} is. Hiervoor moet een functie \lstinline|is_palindroom| worden geschreven met als argument de string. De functie geeft een 1 terug als de string een palindroom is, anders geeft de functie een 0 terug. Het afdrukken gebeurt in het hoofdprogramma. Het gebruik van de functie \lstinline|strrev| is niet toegestaan.
 
 Verzin zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Sorteren met ``bubble sort''}
+\subsection{Sorteren met ``bubble sort''}[C]
 Schrijf een programma dat tien gehele getallen in een array inleest en deze getallen oplopend sorteert. Dat kan als volgt: als het eerste getal in de array groter is dan het tweede getal, dan verwissel je die twee. Dit kan dan ook voor het tweede en derde getal etc.\@ dus voor de hele array. Dit moet je herhalen totdat er geen verwisselingen meer nodig zijn, dan is de array gesorteerd.
 
 NB: Dit algoritme wordt \textsl{bubble sort} genoemd, het is een leuke programmeeroefening maar een erg inefficiënte sorteermethode.
 
 Verzin zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Zoeken}
+\subsection{Zoeken}[D]
 Schrijf een programma dat een string inleest en bepaalt of dit woord in een gesorteerde lijst met 127 woorden voorkomt. Hiervoor moet je het ingevoerde woord vergelijken met de woorden in de lijst. Merk op dat je met maximaal zeven vergelijk-opdrachten kan bepalen of het ingevoerde woord in de gesorteerde lijst voorkomt of niet. Als je het woord wat je zoekt namelijk vergelijkt met het woord met index 63 in de lijst dan kun je het meteen vinden (als het woord dat je zoekt gelijk is aan het woord dat op index 63 staat) of weet je of het woord gezocht moet worden in de lijst van index 0 t/m 62 (als het woord dat je zoekt kleiner is dan het woord dat op index 63 staat) of dat het woord gezocht moet worden in de lijst van index 64 t/m 126 (als het woord dat je zoekt groter is dan het woord dat op index 63 staat). Op deze manier halveer je steeds het deel van de lijst dat je nog moet doorzoeken. Na 7 keer halveren heb je de gehele lijst van $127 = 2^7 – 1$ woorden doorzocht. Je programma mag dus niet meer dan zeven vergelijk-opdrachten uitvoeren. Een programma waarin een lijst met 127 gesorteerde meisjesnamen staat kun je vinden op BlackBoard. 
 
 Verzin zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Sinustabel}
+\subsection{Sinustabel}[A]
 Het uitrekenen van een sinus van een hoek kost veel tijd. Slimmer is om een tabel aan te leggen van sinuswaarden bij verschillende hoeken. Nadeel is dat niet van elke willekeurige hoek de sinus kan worden opgevraagd.
 
 Schrijf een programma dat een array vult met de sinuswaarden van 0 tot 90 in hele graden. Daarna vraagt het programma om een geheel getal tussen 0 en 360 en drukt de bijbehorende sinuswaarde met behulp van de tabel af. Dit doet het programma totdat $-1$ wordt ingevoerd.
@@ -2650,14 +2723,14 @@ Schrijf een programma dat een array vult met de sinuswaarden van 0 tot 90 in hel
 Noot: deze oplossing wordt ook gebruikt bij het ontwerpen van digitale systemen. Het opzoeken van waarden is vele malen sneller dan het uitrekenen ervan.
 
 
-\subsection{Cesuur aanpassen}
+\subsection{Cesuur aanpassen}[B]
 Bij sommige opleidingen wordt de cesuur van een toets aangepast zodat het percentage voldoendes op of boven 70\% ligt. Als blijkt dat een toets slecht is gemaakt dan moeten er punten worden bijgeteld zodanig dat het percentage voldoendes op of boven 70\% ligt. Is de toets goed gemaakt, dan moeten er geen punten worden bijgeteld.
 
 Schrijf een programma dat een aantal resultaten (tussen 0,0 en 10,0) inleest. Dit aantal moet door de gebruiker worden opgegeven. Het minimum aantal is 10 en het maximum aantal is 100. Daarna moet bepaald worden of het aantal voldoendes onder of boven de 70\% ligt. Als het percentage gelijk is aan of groter is dan 70\%, dan hoeft er geen bijtelling plaats te vinden. Als het percentage te laag is, dan moet er wel bijtelling plaats vinden. Dit kan door steeds 0,1 bij de resultaten op te tellen en daarna te bepalen of de 70\%-grens al bereikt is. Let erop dat resultaten nooit hoger kunnen zijn dan 10,0.
 
 Verzin zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Lineaire regressie}
+\subsection{Lineaire regressie}[D]
 In de statistiek wordt gebruikt gemaakt van lineaire regressie. Stel, je meet de waarden van spanning en stroom bij een bepaalde weerstand. In principe is dit een perfecte rechte lijn aangezien de wet van Ohm een lineair verband weergeeft tussen spanning en stroom. Door meetfouten en onnauwkeurigheden in de schakeling liggen de meetgegevens niet op een perfecte lijn, ze liggen ``rond'' of ``in de buurt'' van die lijn. Met behulp van statistiek kan je de rechte lijn vinden die het best past bij de meetgegevens.
 
 De gebruiker moet een aantal x-y paren invoeren. Dit aantal wordt gevraagd aan de gebruiker en ligt tussen 2 en 100. Daarna moeten de x-y paren worden gevraagd. Vervolgens berekent het programma de rechte lijn die het best past bij de meetgegevens. 
@@ -2674,14 +2747,14 @@ Hierin zijn $\overline{x}$ en $\overline{y}$ de gemiddelden van de x-gegevens re
 
 Verzin zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Controle identificatiecode van Nederland eurobankbiljet}
+\subsection{Controle identificatiecode van Nederland eurobankbiljet}[C]
 Schrijf een functie \lstinline|int controleerNedEuroID(char id[])| die de identificatiecode van een Nederlands eurobankbiljet controleert. De parameter \lstinline|id| is een C-string (een array van karakters afgesloten met een nul-karakter). De identificatiecode van een Nederlands eurobankbiljet bestaat uit de letter P gevolgd door~11 cijfers. De som van deze~11 cijfers modulo 9 moet 1 zijn. Zie eventueel: \url{https://nl.wikipedia.org/wiki/Eurobankbiljetten#Nationale_identificatiecodes}. Als de ingevoerde identificatiecode geldig is dan moet de functie \lstinline|controleerNedEuroID| de waarde 1 teruggeven en anders moet deze functie de waarde~0 teruggeven.
 
 Schrijf een hoofdprogramma om de functie \lstinline|controleerNedEuroID| grondig te testen.
 
 Test het programma met:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 int res = controleerNedEuroID("P12345678901");
 \end{lstlisting}
 
@@ -2689,14 +2762,14 @@ Na het uitvoeren moet de variabele \lstinline|res| de waarde 0 hebben.
 
 Bepaal zelf ook een aantal testwaardes.
 
-\subsection{Doorsnede}
+\subsection{Doorsnede}[C]
 Schrijf een functie \mbox{\lstinline[columns=fixed]|int doorsnede(int a[],  int aantal_a, int b[], int aantal_b)|} die de \textsl{doorsnede}\footnote{Zie \url{https://nl.wikipedia.org/wiki/Doorsnede_(verzamelingenleer)}} van de array’s \lstinline|a| en \lstinline|b| in de array \lstinline|a| plaatst. De parameter \lstinline|aantal_a| bevat het aantal elementen in de array \lstinline|a| en de parameter \lstinline|aantal_b| bevat het aantal elementen in de array \lstinline|b|. Je mag ervan uit gaan dat een integer hooguit eenmaal in elke array kan voorkomen. De functie moet het aantal getallen in de doorsnede teruggeven als return waarde. 
 
 %Schrijf ook een hoofdprogramma om de functie doorsnede grondig te testen.
 
 Test de functie met het onderstaande hoofdprogramma:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 int rij1[] = { 23, 3, 56, 6, 5 };
 int rij2[] = { 12, 6, 3, 18, 7, 10, 56, 11 }; 
 int aantal_doorsnede = doorsnede(rij1, sizeof rij1 / sizeof rij1[0], rij2, sizeof rij2 / sizeof rij2[0]);
@@ -2712,7 +2785,7 @@ moet de volgende uitvoer geven:
 
 Bepaal zelf ook een aantal testwaardes.
 
-\subsection{Uniek}
+\subsection{Uniek}[C]
 Schrijf een functie \lstinline|int uniek(int a[], int aantal_a)| die alle getallen die meer dan één keer in de array \lstinline|a| voorkomen verwijderd uit deze array. De parameter \lstinline|aantal_a| bevat het aantal elementen in de array \lstinline|a|. De functie moet het aantal unieke getallen in array \lstinline|a| teruggeven als return waarde.
 
 Schrijf ook een hoofdprogramma om de functie uniek grondig te testen.
@@ -2721,7 +2794,7 @@ Test het programma met:
 
 De code:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 int rij[] = { 23, 3, 56, 3, 23, 5, 12, 6, 3, 18, 7, 10, 56, 11 }; 
 int aantal_uniek = uniek(rij, sizeof rij / sizeof rij[0]);
 int i;
@@ -2732,22 +2805,22 @@ for (i = 0; i < aantal_uniek; i = i + 1) {
 \end{lstlisting}
 
 kan de volgende uitvoer geven:
-5 12 6 18 7 10 11
+\lstinline|5 12 6 18 7 10 11|.
 
 Bereken zelf ook een aantal testwaardes.
 
-\subsection{Run Length encoding}
+\subsection{Run Length encoding}[D]
 Run Length Encoding is een van de oudste compressiemethoden. Een reeks identieke, naast elkaar geplaatste karakters (een Run) wordt vervangen door het aantal karakters (Length) en het karakter.
 
 Zo wordt de invoer van de string:
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 aaaabbbbbbccccccccdaaaa
 \end{lstlisting}
 
 gecodeerd als:
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 4a6b8c1d4a
 \end{lstlisting}
 
@@ -2755,7 +2828,7 @@ Merk op dat de uitvoer groter wordt als de karakters steeds afwisselen. Zo wordt
 
 Schrijf een programma dat een string inleest en deze string RLE-gecodeerd in een andere string plaatst. Gebruik hiervoor de functie:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 double rlecompress(char invoerstring[], char rlestring[]). 
 \end{lstlisting}
 
@@ -2763,23 +2836,23 @@ Zorg ervoor dat de string \lstinline|rlestring| groot genoeg Is om de gecomprime
 
 Verzin zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
-\subsection{Rolling dice}
+\subsection{Rolling dice}[B]
 Het gooien van dobbelstenen doen we al sinds mensenheugenis. Er zijn veel spelletjes waarbij twee dobbelstenen in één worp worden gegooid. Maar hoevaak wordt nu 7 als het aantal ogen gegooid? En hoevaak wordt nu 2 als het aantal ogen gegooid? Dat willen we uitzoeken.
 
 Schrijf een programma dat de gebruiker vraagt hoe vaak de twee dobbelstenen gegooid moeten worden (getal > 2). Maak een functie \lstinline|roll_dice()| die het gooien van één dobbelsteen simuleert. Met deze functie kan je het aantal gegooide ogen van twee dobbelstenen simuleren. Houd in een array bij hoe vaak een bepaald aantal ogen wordt gegooid. Druk aan het einde van de simulatie van alle mogelijke combinaties het gegooide aantal ogen af.
 
 Bij deze opdracht moet je gebruik maken van de \textsl{pseudo random generator} in C. De term ``pseudo'' geeft aan dat het hier om een random generator gaat niet niet geheel random is (maar goed genoeg voor ons experiment). Om te beginnen moet je een \textsl{seed} zetten. Dat is het startpunt van onze reeks. Daarna kan je via de functie \lstinline|rand()| een random getal opvragen. Zie voor meer informatie: \url{http://www.gnu.org/software/libc/manual/html_node/ISO-Random.html#ISO-Random}.
 
-\subsection{Overtollige spaties en tabs verwijderen}
+\subsection{Overtollige spaties en tabs verwijderen}[C]
 Bij het \textsl{parsen} (ontleden) van een string is het soms nodig om overtollige spaties en tabs te verwijderen. Met het verwijderen wordt bedoeld dat een reeks van aaneengesloten spaties en/of tabs worden vervangen door één spatie. Spaties aan het begin en einde van een string moeten in het geheel verwijderd worden. Dit wordt \textsl{trimming} genoemd. Hieronder zie je een voorbeeld waarbij spaties zijn vervangen door het \lstinline[keepspaces=true,columns=fixed,showspaces=true]| |-symbool en tabs zijn vervangen door het \lstinline[showspaces=true,showtabs=true]|	|-symbool.
 
-\begin{lstlisting}[language=,literate=,showspaces=true,showtabs=true,keywords={hiddentext},keywordstyle=\color{white}]
+\begin{lstlisting}[caption=,language=,literate=,showspaces=true,showtabs=true,keywords={hiddentext},keywordstyle=\color{white}]
     Hallo,   dit 	 	 is  	een   string.    hiddentext
 \end{lstlisting}
 
 Deze string wordt omgezet in
 
-\begin{lstlisting}[language=,literate=,showspaces=true]
+\begin{lstlisting}[caption=,language=,literate=,showspaces=true]
 Hallo, dit is een string.
 \end{lstlisting}
 
@@ -2787,7 +2860,7 @@ Het verwijderen moet in de ingevoerde string gebeuren, er mag geen nieuwe string
 Ga ervan uit dat de ingevoerde string niet langer is dan 100 karakters.
 
 
-\subsection{Waar of niet waar}
+\subsection{Waar of niet waar}[D]
 Gegeven is de volgende bewering:
 \begin{quote}
 Deze zin bevat~1 keer een~0,~1 keer een~1,~1 keer een~2,~1 keer een~3,~1 keer een~4,~1 keer een~5,~1 keer een~6,~1 keer een~7,~1 keer een~8 en~1 keer een~9.
@@ -2798,11 +2871,46 @@ We bekijken \textbf{alleen} de cijfers en getallen. Natuurlijk is de bewering ni
 Hint: maak gebruik van twee arrays. Array \lstinline|int a[10]| bevat het aantal cijfers in getalvorm, dus element \lstinline|a[0]| bevat het aantal nullen in getalvorm. In array \lstinline|int b[10]| houd je bij hoe vaak een cijfer voorkomt in de getallen van array \lstinline|a|. Dus \lstinline|b[1]| zou ``10'' kunnen bevatten omdat er in de getallen van array \lstinline|a| 10 keer een~1 voorkomt. Ga ervan uit dat een cijfer niet meer dan 99 keer voorkomt. Bedenk ook dat het aantal voorkomingen van een cijfer minstens 1 is (kijk hierbij naar de zin).
 
 
+\clearpage
 \section{Structures}
 
 
-\subsection{Afstand tussen twee punten}
-Gegeven zijn twee punten in een 2-dimensionaal vlak. De punten worden gegeven via twee structures:
+\subsection{Inleiding}
+Een structure in een handige manier om bij elkaar behorende gegevens te gebruiken onder één gemeenschappelijke noemer. Het voordeel van een structure is dat het als geheel kan worden meegegeven als een argument in een functie en dat een functie een complete structure kan retourneren. We hoeven ons dat niet druk te maken over wat er precies in de structure zit.
+
+Als voorbeeld zie je hier een structure die twee doubles bevat. De structure heeft als naam \lstinline|punt|.
+
+\begin{lstlisting}[caption=]
+struct punt {
+    double x, y;
+}
+\end{lstlisting}
+
+We kunnen nu twee variabelen van de structure aanmaken:
+
+\begin{lstlisting}[caption=]
+struct punt A, B;
+\end{lstlisting}
+
+We kunnen een variabele gelijk initialiseren:
+
+\begin{lstlisting}[caption=]
+struct punt C = { 1.2, 3.4 };
+\end{lstlisting}
+
+Maar we kunnen ook de \textsl{members} apart een waarde toekennen:
+
+\begin{lstlisting}[caption=]
+struct punt C;
+c.x = 1.2;
+c.y = 3.4;
+\end{lstlisting}
+
+\letop
+\clearpage
+
+\subsection{Afstand tussen twee punten}[A]
+Gegeven zijn twee punten in een 2-dimensionaal vlak. De punten worden gegeven via de structure:
 
 \begin{lstlisting}[caption=]
 struct punt {
@@ -2812,12 +2920,15 @@ struct punt {
 
 Schrijf een programma dat de twee structures inleest en vervolgens de afstand tussen deze twee punten berekent en afdrukt. Hint: gebruik de stelling van Pythagoras.
 
+
+\clearpage
 \section{Pointers}
+\subsection{Introductie}
 In de les heb je het een en ander geleerd over pointers. Een pointer is een variabele die als inhoud een \textsl{adres} bevat. Dit adres is dan het adres waar een andere variabele ligt opgeslagen. Zodoende wijst de pointer dus naar de variabele. In het boek kan je meer vinden over pointers.
 
 Hieronder is een programma gegeven dat wat meer vertelt over pointers. Kopieer het programma in een nieuw project en start het programma. Bestudeer de uitvoer nauwgezet.
 
-\begin{lstlisting}[]
+\begin{lstlisting}[caption=]
 #include <stdio.h>
 
 int main(void) {
@@ -2857,26 +2968,32 @@ Ook de naam van een functie, bijvoorbeeld \lstinline|printf|, is een pointer, ma
 
 \letop
 
-\subsection{Array afdrukken}
-Schrijf een programma dat een array van tien integers met behulp van een pointer afdrukt.
+\subsection{Array afdrukken}[A]
+Schrijf een programma dat een array van tien integers met behulp van een pointer afdrukt. Definieer zelf een array.
 
-\subsection{String achterstevoren afdrukken}
+\subsection{Array afdrukken, reprise}[B]
+Schrijf een programma dat een array van \textsl{onbekende} lengte gevuld met integers met behulp van een pointer afdrukt. Definieer zelf een array.
+
+%\subsection{Array van string}[A]
+%Schrijf een programma dat een array van strings afdruk.
+
+\subsection{String achterstevoren afdrukken}[B]
 Schrijf een functie die een meegegeven string (dus als argument) van willekeurige lengte achterstevoren afdrukt. Maak gebruik van een pointer. De string mag niet aangepast worden in de functie. Test de functie met een hoofdprogramma.
 
-\subsection{Woorden tellen}
+\subsection{Woorden tellen}[B]
 Schrijf een functie die in een meegegeven string (dus als argument) van willekeurige lengte het aantal woorden telt. De woorden in de string worden gescheiden door spaties. Vergeet de woorden aan het begin en einde van de string mee te tellen. Het getelde aantal woorden wordt als returnwaarde teruggegeven. Maak gebruik van pointers. Test de functie met een hoofdprogramma.
 
-\subsection{Array van integers omkeren}
+\subsection{Array van integers omkeren}[A]
 Schrijf een functie die een meegegeven array van integers en een meegegeven lengte van de array in elementen, omkeert. Het eerste en laatste element worden dus verwisseld. Zo ook met de andere elementen. Maak gebruik van pointers. Test de functie met een hoofdprogramma.
 
-\subsection{Zoek het grootste getal}
+\subsection{Zoek het grootste getal}[A]
 Gegeven is een array van integers (die moet je zelf vullen). Schrijf een functie die van de meegegeven array het grootste getal bepaalt. Natuurlijk moet ook de lengte van de array meegegeven worden. Het adres van het grootste getal moet via een pointer worden teruggegeven. Schrijf een hoofdprogramma die de functie aanroept en via de teruggeven pointer het grootste getal afdrukt.
 
-\subsection{Vervangen van karakter}
-Schrijf een functie die in een meegegeven string, het meegegeven karakter vervangt door een tweede meegegeven karakter. Gebruik in deze functie pointers. Test de functie met een hoofdprogramma.
+\subsection{Vervangen van karakter}[A]
+Schrijf een functie die in een meegegeven string, het meegegeven karakter vervangt door een tweede meegegeven karakter. Maak gebruik van pointers in deze functie. Test de functie met een hoofdprogramma.
 
 
-\subsection{Vervangen van woord}
+\subsection{Vervangen van woord}[C]
 Voor het vervangen van een woord in een string is in C geen functie beschikbaar. Die zal je dus zelf moeten schrijven. Schrijf een functie:
 
 \begin{lstlisting}[caption=]
@@ -2885,10 +3002,10 @@ int stringreplace(char *str, char *what, char *with)
 
 die in de string \lstinline|str| zoekt naar het woord aangegeven door \lstinline|what| en vervangt door het woord aangegeven door \lstinline|with|. De return-waarde is het aantal vervangingen en kan natuurlijk ook 0 zijn. Schrijf een hoofdprogramma om de functie te testen. Noot: let erop dat de lengte van \lstinline|with| groter kan zijn dan de lengte van \lstinline|what|. Zorg ervoor dat de ruimte van de string \lstinline|str| groot genoeg is. Maak gebruik van pointers.
 
-\subsection{Dynamische array}
+\subsection{Dynamische array}[B]
 Schrijf een programma dat met behulp van \textsl{dynamische geheugenallocatie} een array van integers van willekeurige lengte van het toetsenbord inleest en deze array netjes afdrukt. De spil in deze opdracht is het gebruik van de de functie \lstinline|calloc|. Zie bijvoorbeeld \url{https://www.cplusplus.com/reference/cstdlib/calloc/}.
 
-\subsection{Onbeperkt}
+\subsection{Onbeperkt}[E]
 Het inlezen van een regel tekst van het toetsenbord is niet echt lastig. Het wordt pas problematisch als er meer tekens worden ingelezen dan er in de string kunnen worden ondergebracht. Meestal declareren we een string met 100 karakters en hopen maar dat er niet meer karakters worden ingevoerd.
 
 We kunnen dit oplossen door on-the-fly dynamisch geheugen te alloceren. Een eenvoudig voorbeeld van dynamische geheugenallocatie is hieronder gegeven:
@@ -2930,6 +3047,7 @@ Let erop dat \lstinline|ptrnew| en \lstinline|ptr| naar twee verschillende adres
 Schrijf een functie \lstinline|char *getoneline(int chuncksize)| dat een regel tekst van het toetsenbord inleest en in een stuk dynamisch gealloceerd geheugen plaatst. De parameter \lstinline|chunksize| is het aantal bytes waarmee het geheugen moet worden uitgebreid als een eerder gealloceerd stuk geheugen vol is. Nadat de regel is ingelezen (end-of-line-karakter wordt niet opgeslagen) geeft de functie de pointer terug naar het gealloceerde geheugen. Test je functie met een klein programma en varieer de waarde van \lstinline|chunksize|.
 
 
+\clearpage
 \section{Bestanden}
 
 \subsection{Inleiding}
@@ -2938,7 +3056,7 @@ Bij deze opdracht gaan we gebruik maken van argumenten op de command-line en ope
 Hieronder zie je een voorbeeld van een programma dat de opgegeven argumenten op het beeldscherm afdrukt. Het programma drukt eerst het aantal opgegeven argumenten af (via de variabele \lstinline|argc|) en drukt daarna een voor een de argumenten af (via de variabele \lstinline|argv|).
 Kopieer de code in een nieuw Visual Studio-project en start het programma vanaf de command-line.
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 /* myprog.c */
 #include <stdio.h>
 #include <stdlib.h>
@@ -2981,35 +3099,33 @@ Argument 2: two
 D:\PROJECTS\VS\myprog\Debug>
 \end{dosbox}
 
-\vfill
 \leesvoetnoot
-\bigskip
 \letop
-\vfill
+\clearpage
 
-\subsection{More}
-Schrijf een programma dat de inhoud van een tekstbestand met twintig regels tegelijk op het scherm laat zien. De naam van het tekstbestand wordt als argument op de command-line*) meegegeven. Na een druk op de enter-toets worden de volgende twintig regels getoond. Lever een tekstbestand mee van minimaal 100 regels. Bedenk dat een bestand niet altijd een veelvoud van twintig regels heeft.
+\subsection{More}[A]
+Schrijf een programma dat de inhoud van een tekstbestand met twintig regels tegelijk op het scherm laat zien. Na een druk op de enter-toets worden de volgende twintig regels getoond. Lever een tekstbestand mee van minimaal 100 regels. Bedenk dat een bestand niet altijd een veelvoud van twintig regels heeft. De naam van het tekstbestand wordt als argument op de command-line*) meegegeven.
 
-\subsection{Cat}
+\subsection{Cat}[C]
 Schrijf een programma dat de inhoud van een aantal tekstbestanden achter elkaar op het scherm afdrukt. De namen van het tekstbestanden worden als argumenten op de command-line*) meegegeven. Het aantal bestandsnamen kan variëren, er wordt dus geen vast aantal namen opgegeven. Als geen bestandsnaam wordt opgegeven, moet het toetsenbord als invoer dienen (er kunnen dan geen bestanden geopend worden want er zijn geen namen opgegeven). Als het eerste argument \lstinline|-h| is, moet
 er een helptekst worden afgedrukt en moet het programma stoppen. Er worden dan geen bestanden afgedrukt.
 
-\subsection{Zinslengte sorteren}
+\subsection{Zinslengte sorteren}[C]
 Schrijf een programma dat de regels in een tekstbestand inleest en op lengte sorteert. Het resultaat schrijf je naar het scherm en naar een uitvoerbestand. De namen van de tekstbestanden moeten als argumenten op de command-line*) meegegeven worden.
 
-\subsection{Op alfabet sorteren}
+\subsection{Op alfabet sorteren}[C]
 Schrijf een programma dat de woorden in een tekstbestand op alfabet sorteert. Het resultaat schrijf je naar het scherm en naar een uitvoerbestand. De namen van de tekstbestanden moeten als argumenten op de command-line*) meegegeven worden.
 
-\subsection{Regelnummering}
-Schrijf een programma dat een tekstbestand inleest (bijv.\@ een C-file) en hier regelnummers aan toevoegt en naar een uitvoertekstbestand schrijft. Lege regels worden niet genummerd, maar worden wel naar het uitvoerbestand geschreven. De regelnummers komen aan de linkerkant te staan. Gebruik een invoerbestand van minimaal 100 regels tekst en lever dit bestand ook in. De namen van de bestanden moeten als argumenten op de command-line*) meegegeven worden.
+\subsection{Regelnummering}[A]
+Schrijf een programma dat een tekstbestand inleest (bijv.\@ een C-file) en hier regelnummers aan toevoegt en naar een uitvoertekstbestand schrijft. Lege regels worden niet genummerd, maar worden wel naar het uitvoerbestand geschreven. De regelnummers komen aan de linkerkant te staan. Gebruik een invoerbestand van minimaal 100 regels tekst en lever dit bestand ook in. De namen van de tekstbestanden moeten als argumenten op de command-line*) meegegeven worden.
 
-\subsection{Getallen sorteren }
-Schrijf een programma dat twee tekstbestanden met ongesorteerde integer getallen samenvoegt tot een derde gesorteerd bestand met integers. Alle drie bestandsnamen worden als argumenten op de command-line*) meegegeven.
+\subsection{Getallen sorteren}[B]
+Schrijf een programma dat twee tekstbestanden met ongesorteerde integer getallen samenvoegt tot een derde gesorteerd bestand met integers. De namen van de tekstbestanden wordt als argument op de command-line*) meegegeven.
 
-\subsection{Uitgeschreven nummers sorteren}
+\subsection{Uitgeschreven nummers sorteren}[C]
 In een tekstbestand staat een willekeurige rij met nummers van nul tot en met twintig. De nummers staan echter niet op volgorde en zijn languit (dus als woorden) geschreven. Sorteer alle woorden (nummers) op numerieke volgorde van hoog naar laag en schrijf het resultaat (aantal keer) naar een nieuw bestand. Het resulterende bestand kan er dus zo uitzien:
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=]
 9 Twintig
 15 Negentien
 3 Achttien
@@ -3018,12 +3134,12 @@ In een tekstbestand staat een willekeurige rij met nummers van nul tot en met tw
 8 Vijftien
 \end{lstlisting}
 
-De naam van van de tekstbestanden moeten als argumenten op de command-line*) meegegeven worden.
+De namen van de tekstbestanden wordt als argument op de command-line*) meegegeven.
 
-\subsection{C keywords}
-Schrijf een programma dat een tekstbestand met C-programmacode inleest. Het programma moet vervolgens tellen hoe vaak een keyword van de programmeertaal C voorkomt. Vervolgens moet het resultaat weggeschreven worden naar een ander bestand. De namen van de bestanden moeten als argumenten op de command-line*) meegegeven worden.  Het resulterende bestand kan er dus zo uitzien:
+\subsection{C keywords}[C]
+Schrijf een programma dat een tekstbestand met C-programmacode inleest. Het programma moet vervolgens tellen hoe vaak een keyword van de programmeertaal C voorkomt. Vervolgens moet het resultaat weggeschreven worden naar een ander bestand. De namen van de tekstbestanden moeten als argumenten op de command-line*) meegegeven worden.  Het resulterende bestand kan er dus zo uitzien:
 
-\begin{lstlisting}[language=,literate=]
+\begin{lstlisting}[caption=,language=,literate=]
 2 double
 12 for
 5 if
@@ -3031,13 +3147,23 @@ Schrijf een programma dat een tekstbestand met C-programmacode inleest. Het prog
 6 while
 \end{lstlisting}
 
-\subsection{Commentaar verwijderen}
-Schrijf een programma dat een tekstbestand met C-programmacode inleest en de programmacode zonder commentaren naar een ander bestand schrijft. Filter zowel blokcommentaren \lstinline|/*....*/| als lijncommentaren \lstinline|//....| uit. De namen van de bestanden moeten als argumenten op de command-line*) meegegeven worden. 
+\subsection{Commentaar verwijderen}[C]
+Schrijf een programma dat een tekstbestand met C-programmacode inleest en de programmacode zonder commentaren naar een ander bestand schrijft. Filter zowel blokcommentaren \lstinline|/*....*/| als lijncommentaren \lstinline|//....| uit. De namen van de tekstbestanden moeten als argumenten op de command-line*) meegegeven worden. 
 
-\subsection{Letters tellen}
-Schrijf een programma dat een tekstbestand inleest en bepaalt hoe vaak elke letter voorkomt. Lege regels, cijfers en leestekens mogen worden genegeerd. Hoofdletters en bijbehorende kleine letters moeten als identiek beschouwd worden. De resultaten moeten naast absolute aantallen ook als percentages van het totaal aantal letters in een tekstbestand worden weggeschreven. De namen van de tekstbestanden moeten als argumenten*) op de command-line meegegeven worden. Maak je code efficiënt door gebruik te maken van arrays.
+\subsection{Letters tellen}[B]
+Schrijf een programma dat een tekstbestand inleest en bepaalt hoe vaak elke letter voorkomt. Lege regels, cijfers en leestekens mogen worden genegeerd. Hoofdletters en bijbehorende kleine letters moeten als identiek beschouwd worden. De resultaten moeten naast absolute aantallen ook als percentages van het totaal aantal letters in een tekstbestand worden weggeschreven. Maak je code efficiënt door gebruik te maken van arrays. De namen van de tekstbestanden moeten als argumenten op de command-line*) meegegeven worden.
 
-\subsection{XeT}
+\subsection{Woorden tellen, en meer}[B]
+Schrijf een programma dat een tekstbestand inleest en bepaalt hoeveel woorden, regels en karakters het bestand telt. Het resultaat moet een een tweede tekstbestand worden ingelezen. De namen van de tekstbestanden moeten als argumenten op de command-line*) meegegeven worden.
+
+\subsection{Omkeren}[B]
+Schrijf een programma dat een tekstbestand per regel inleest en de regels achterstevoren in een tweede tekstbestand plaatst. De namen van de tekstbestanden moeten als argumenten op de command-line*) meegegeven worden.
+
+\subsection{Verwijderen}[C]
+Schrijf een programma dat een tekstbestand inleest en alle spaties aan het begin en het einde van een regel verwijdert. Verder moeten alle meervoudige spaties tussen de woorden vervangen worden door \'e\'en spatie. De uitvoer moet naar een tweede bestand geschreven worden.
+De namen van de tekstbestanden moeten als argumenten op de command-line*) meegegeven worden.
+
+\subsection{XeT}[D]
 Schrijf een programma dat een tekstbestand inleest. In het tekstbestand zitten speciale commando's verborgen. Deze zijn:
 
 \begin{itemize}
@@ -3046,10 +3172,9 @@ Schrijf een programma dat een tekstbestand inleest. In het tekstbestand zitten s
 \item Als het commando \lstinline|\nobreak| wordt gevonden, dan moet het end-of-line-karakter aan het einde van de huidige ingelezen regel verwijderd worden. Het end-of-line-karakter wordt dus niet afgedrukt. Merk op dat na \lstinline|\nobreak| altijd een spatie of een end-of-line-karakter moet volgen anders is het commando \lstinline|\nobreak| niet te detecteren.
 \end{itemize}
 
-De aangepaste tekst moet naar een bestand geschreven worden. Eventuele foutmeldingen moeten naar het scherm worden geschreven. Ga ervan uit dat een ingelezen regel uit niet meer dan 100 karakters bestaat.
+De aangepaste tekst moet naar een tekstbestand geschreven worden. Eventuele foutmeldingen moeten naar het scherm worden geschreven. Ga ervan uit dat een ingelezen regel uit niet meer dan 100 karakters bestaat. De namen van de tekstbestanden wordt als argument op de command-line*) meegegeven.
 
-
-\subsection*{*) Argumenten op de command-line}
+\subsection{*)\space\space Argumenten op de command-line}
 Met argumenten op de command-line wordt het volgende bedoeld:
 
 \begin{itemize}
@@ -3076,6 +3201,7 @@ Het is dus \textbf{niet} de bedoeling dat na het starten van het programma de ge
 
 \appendix
 
+\clearpage
 \section{Installatie Visual Studio Communtity}
 \label{sec:installatievsc}
 We behandelen in deze bijlage het opzetten van een project in Visual Studio 2019. Visual Studio 2019 kan gedownload worden van de website van Microsoft. De precieze installatie van de software verschilt van computer tot computer, afhankelijk van de al eerder geÃ¯nstalleerde software, met name de \textsl{runtime libraries}.
@@ -3099,7 +3225,11 @@ Visual Studio ondersteunt het ontwikkelen van applicatue met een veelzijdigheid 
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{000installworkload}
+\begin{tikzpicture}
+\node[inner sep=0pt] (A) at (0,0) {
+\includegraphics[width=\textwidth]{000installworkload}};
+\draw[red,thick,rounded corners=5pt] (-2.25,-1.25) rectangle ++(4.75,1.1);
+\end{tikzpicture}
 \caption{Selecteren van de C++-workload.}
 \label{fig:000installworkload}
 \end{figure}
@@ -3173,7 +3303,7 @@ De tutorial is hiermee ten einde.
 \end{figure}
 
 
-
+\clearpage
 \section{Installatie Code::Blocks}
 \label{sec:installcodeblocks}
 
@@ -3195,7 +3325,7 @@ In deze bijlage zijn instructies te vinden voor het installeren en gebruiken van
 \item \lstinline[language=,literate=]|Finish| (vinkjes aan, GNU GCC compiler geselecteerd)
 \item Links in de projectomgeving is nu de file \lstinline[language=,literate=]|main.c| te vinden met code:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=]
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -3211,92 +3341,22 @@ int main(void)
 \end{itemize}
 
 
-\iffalse
-\section*{Moeilijkheidsgraad}
+\ifprintdifficulty
+
+
+\clearpage
+\section{Moeilijkheidsgraad}
+
+%% Tabel wordt automatisch gegenereerd als \ifprintdifficulty op true gezet wordt
+
 In de onderstaande tabel is de moeilijkheidsgraad te vinden. A = eenvoudig, B = iets moeilijker, C = lastig, D = moeilijk, E = heel moeilijk.
  
+\ExplSyntaxOn
 \begin{multicols}{4}
-2.2 B\\
-2.3 A\\
-2.4 A\\
-2.5 C\\
-2.6 A\\
-2.7 A\\
-2.8 B\\
-2.9 D\\
-2.10 D\\
-2.11 D\\
-2.12 B\\
-2.13 C\\
-2.14 C\\
-2.15 D
+\seq_use:Nn \g__diff_seq {}
 \end{multicols}
+\ExplSyntaxOff
 
-\begin{multicols}{4}
-3.2 A\\
-3.3 A\\
-3.4 A\\
-3.5 B\\
-3.6 B\\
-3.7 D\\
-3.8 C\\
-3.9 A\\
-3.10 B\\
-3.11 B\\
-3.12 A\\
-3.13 D
-\end{multicols}
-
-\begin{multicols}{4}
-4.2 B\\
-4.3 B\\
-4.4 A\\
-4.5 B\\
-4.6 A\\
-4.7 A\\
-4.8 A\\
-4.9 B\\
-4.10 C\\
-4.11 C\\
-4.12 C\\
-4.13 B\\
-4.14 C
-\end{multicols}
-
-\begin{multicols}{4}
-5.2 A\\
-5.3 A\\
-5.4 B\\
-5.5 C\\
-5.6 A\\
-5.7 C\\
-5.8 D\\
-5.9 A\\
-5.10 B\\
-5.11 D\\
-5.12 B\\
-5.13 D\\
-5.14 D\\
-5.15 C\\
-5.16 B\\
-5.17 C\\
-5.18 D\\
-5.19 E\\
-5.20 D\\
-\end{multicols}
-
-\begin{multicols}{4}
-6.2 A\\
-6.3 C\\
-6.4 D\\
-6.5 C\\
-6.6 B\\
-6.7 C\\
-6.8 D\\
-6.9 C\\
-6.10 B\\
-6.11 A\\
-6.12 D
-\end{multicols}
 \fi
+
 \end{document}
