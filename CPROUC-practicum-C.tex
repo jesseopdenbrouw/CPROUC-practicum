@@ -17,6 +17,7 @@
 %%
 %%   For students: use \printdifficultyfalse
 %%   For lectures: use \printdifficultytrue
+%%
 
 \documentclass[a4paper,10pt,fleqn,twoside]{article}
 
@@ -215,7 +216,7 @@
 %% Set the extra <whatever> to colors...
 \lstset{
   keywords=[10]{fib,leesCijfer,fflush,exit,malloc,free,realloc,catalan,faculteit,catalanRecursief,collatzSteps,max2,leesGetal,gemiddelde,kgv,ggd,leesEnBerekenSom,leesEnBerekenMod9,isprime,isisolatedprime,sinc,aantal_delers,reverse,strrev,is_palindroom,controleerNedEuroID,doorsnede,uniek,rlecompress,roll_dice,rand,stringreplace,scanf_s,getoneline},  % User functions
-  keywords=[11]{punt},  % Typedef'd types
+  keywords=[11]{punt,student},  % Typedef'd types
   keywords=[12]{},  % Macros
   keywords=[13]{},  % System header files
 }
@@ -794,7 +795,7 @@ Als voorbeeld is onderstaand programma gegeven. Hierin worden o.a.\@ wiskundige 
 #include <math.h>
 \end{lstlisting}
 
-De wiskundige functies die in de mathematische bibliotheek voorkomen staan achterin het boek “De programmeertaal C, vierde editie” in bijlage A7 aangegeven. Je kunt ook online informatie over deze functies vinden op: \url{http://en.cppreference.com/w/c/numeric/math} 
+De wiskundige functies die in de mathematische bibliotheek voorkomen staan in het boek “De programmeertaal C in paragraaf~5.11 aangegeven. Je kunt ook online informatie over deze functies vinden op: \url{http://en.cppreference.com/w/c/numeric/math} 
 
 In onderstaand voorbeeldprogramma wordt aan de gebruiker gevraagd een positief getal $x$ en een getal $y$ in te voeren. Het programma berekent dan de vierkantswortel uit $x$ en $x$ tot de macht $y$. Hiervoor wordt gebruik gemaakt van de functies: \lstinline|sqrt| en \lstinline|pow|. De \lstinline|for| loop zorgt ervoor dat vijf keer achter elkaar de vierkantswortel uit $x$ en $x$ tot de macht $y$ wordt berekend. De eerste keer heeft $x$ de waarde die de gebruiker heeft ingevoerd en de volgende vier keer wordt de waarde van $x$ met 1 opgehoogd.
 
@@ -830,7 +831,7 @@ int main(void) {
 Schrijf een programma die de kwadraten en derde machten van 1 t/m 10 afdrukt. Gebruik een \lstinline|for|-statement voor het opzetten van de herhaling.
 
 \subsection{Tafel van 12}[A]
-Schrijf een programma dat de tafel van 12 afdrukt. Maar gebruik van een \lstinline|for|-statement voor het opzetten van de herhaling.
+Schrijf een programma dat de tafel van 12 afdrukt. Maak gebruik van een \lstinline|for|-statement voor het opzetten van de herhaling.
 
 \subsection{Achterstevoren}[A]
 Schrijf een programma dat de gebruiker vraagt om een positief geheel getal in te voeren. Druk vervolgens de cijfers van dat getal achterstevoren af. Dus 12345 wordt 54321.
@@ -848,7 +849,7 @@ Schrijf een programma dat de inversen van 1 t/m 100 bij elkaar optelt. Dat is du
 Gebruik een \lstinline|for|-statement voor het opzetten van de herhaling.
  
 \subsection{Driehoek van Floyd}[B]
-Schrijf een programma dat een positief geheel getal inleest en vervolgens de driehoek van Floyd afdrukt. In deze driehoek worden getallen oplopend afgedrukt, beginnend bij 1, steeds één getal meer per rij. Een voorbeeld van de driehoek voor invoer van het getal 6 is hieronder gegeven.
+Schrijf een programma dat een positief geheel getal inleest en vervolgens de driehoek van Floyd afdrukt. In deze driehoek worden getallen oplopend afgedrukt, beginnend bij 1, steeds één getal meer per rij. Een voorbeeld van de driehoek voor invoer van het getal 6 is hieronder gegeven. De maximale invoer is 44, dan wordt het getal 999 als hoogste getal afgedrukt.
 
 \begin{lstlisting}[caption=]
 Geef positief getal: 6
@@ -874,7 +875,7 @@ Een spanningsbron kan worden voorgesteld door een ideale spanningsbron met de sp
 \end{circuitikz}
 \end{figure}
 
-Ontwerp een programma dat de gebruiker vraagt de waarden van $U_b$ en $R_i$ in te voeren. Het programma berekent voor de waarden $R_u = R_i$ t/m $R_u = 10\cdot Ri$ steeds de stroom $I_b$ en de vermogens verbruikt in $R_i$ (de bron) en $R_u$. Zorg ervoor dat het programma goed omgaat met $R_i \leq 0$ door gebruik te maken van een \lstinline|do while| loop.
+Ontwerp een programma dat de gebruiker vraagt de waarden van $U_b$ en $R_i$ in te voeren. Het programma berekent voor de waarden $R_u = R_i$ t/m $R_u = 10\cdot Ri$ (in stappen van $R_u$) steeds de stroom $I_b$ en de vermogens verbruikt in $R_i$ (de bron) en $R_u$. Zorg ervoor dat het programma goed omgaat met $R_i \leq 0$ door gebruik te maken van een \lstinline|do while| loop.
 
 Test het programma met $U_b=5$ en $R_i=10$. Bij $R_U=100$ is $P_{Ri}=20,66$ mW en $P_{Ru}=206,61$ mW.
 
@@ -1056,6 +1057,7 @@ Tijd   Hoogte [m]   Afstand [m]
   5     73.79       196.42
   6     59.12       235.70
   7     34.64       274.99
+  8      0.35       314.27
 \end{lstlisting}
 
 Bereken zelf minimaal één set met testwaardes.
@@ -1318,7 +1320,7 @@ De functie is te zien in onderstaande figuur voor de grenzen $x=0$ tot $x=5$.
 \end{tikzpicture}%
 \end{figure}
 
-Schrijf een programma dat de oppervlakte van de functie berekent binnen het domein $x=0$ tot en met $x=5$. Dit is in de figuur aangegeven met de lichtblauwe kleur. De oppervlakte is aangegeven met de letter \textsl{O}. Tip: lees het boek. Overigens is het antwoord exact $125/24 \approx 5,2083\cdots$
+Schrijf een programma dat de oppervlakte van de functie berekent binnen het domein $x=0$ tot en met $x=5$. Dit is in de figuur aangegeven met de lichtblauwe kleur. De oppervlakte is aangegeven met de letter \textsl{O}. Tip: lees het boek. Overigens is het antwoord exact $125/24 \approx 5,2083\ldots$
 
 
 \clearpage
@@ -1435,7 +1437,7 @@ Geef twee getallen gescheiden door een operator: 5.2 * 4.5
 De vermenigvuldiging van 5.2 en 4.5 is 23.4
 \end{lstlisting}
 
-Maak gebruik van het \lstinline|switch|-statement.
+Maak gebruik van het \lstinline|switch|-statement. Zorg voot correcte foutafhandeling.
 
 \subsection{Afdrukken binair getal}[C]
 Het afdrukken van een binair getal is in standaard C niet mogelijk. Natuurlijk zijn er uitbreidingen in C-compilers, maar daar kan je niet van uitgaan. Ontwerp een programma dat een geheel getal tussen 0 en 255 omzet naar een 8-bits binair getal. Bedenk goed met welke getallen je dit programma moet testen om de correcte werking aan te tonen. Laat de getallen die je hebt gebruikt om te testen ook aan je practicumdocent zien.
@@ -1514,6 +1516,24 @@ Vind zelf een aantal testdata. Zorg dat je deze testdata bij de hand hebt tijden
 \subsection{Extra dagen}[D]
 Schrijf een programma dat vraagt om een geldige datum in het formaat \textsl{dd mm yyyy} (dag gevolgd door maand gevolgd door jaartal, alle in cijfers). Deze datum getest worden op geldigheid. Daarna wordt gevraagd om een extra aantal dagen (alleen dagen). Deze dagen moeten worden opgeteld bij de ingevoerde datum. Druk vervolgens deze nieuwe datum af. Let erop dat de nieuwe datum geldig moet zijn.
 
+\subsection{Stelsel van twee lineaire vergelijkingen}[A]
+Gegeven is het stelsel van twee lineaire vergelijkingen:
+
+\begin{equation*}
+\begin{split}
+a_1x + b_1y = c_1\\
+a_2x + b_2y = c_2
+\end{split}
+\end{equation*}
+
+Schrijf een programma dat de gegevens $a_1$, $b_1$, $c_1$, $a_2$, $b_2$ en $c_2$ van het toetsenbord inleest en vervolgens het stelsel oplost. Hint: bereken eerst $d=a_1b_2-a_2b_1$. Als $d=0$ dan is er geen oplossing voor dit stelsel. Je kan $x$ en $y$ berekenen met:
+
+\begin{equation*}
+\begin{split}
+x = \dfrac{b_2c_1-b_1c_2}{d}\\
+y = \dfrac{a_1c_2-a_2c_1}{d}
+\end{split}
+\end{equation*}
 
 \clearpage
 \section{Functies}
@@ -2876,34 +2896,30 @@ Hint: maak gebruik van twee arrays. Array \lstinline|int a[10]| bevat het aantal
 
 
 \subsection{Inleiding}
-Een structure in een handige manier om bij elkaar behorende gegevens te gebruiken onder één gemeenschappelijke noemer. Het voordeel van een structure is dat het als geheel kan worden meegegeven als een argument in een functie en dat een functie een complete structure kan retourneren. We hoeven ons dat niet druk te maken over wat er precies in de structure zit.
+Een structure in een handige manier om bij elkaar behorende gegevens te gebruiken onder één gemeenschappelijke noemer. Het voordeel van een structure is dat het als geheel kan worden meegegeven als een argument in een functie en dat een functie een complete structure kan retourneren. Daarnaast is het makkelijk om een array van structures te maken zodat dataverwerking kunnen toepassen
 
-Als voorbeeld zie je hier een structure die twee doubles bevat. De structure heeft als naam \lstinline|punt|.
+Als voorbeeld zie je hier een structure die toetsresultaten kan opslaan. Een toetsresultaat is gekoppeld aan een student. Van de student wordt het studentnummer en de achternaam, samen met het resultaat in een structure opgeslagen.
 
 \begin{lstlisting}[caption=]
-struct punt {
-    double x, y;
+struct student {
+	int studentnummer;    // An integer
+	char achternaam[21];  // A string of 20 characters
+	double beoordeling;   // A double between 0.0 and 10.0
 }
 \end{lstlisting}
 
-We kunnen nu twee variabelen van de structure aanmaken:
+We kunnen nu een variabele aanmaken met:
 
 \begin{lstlisting}[caption=]
-struct punt A, B;
+struct student piet, jan;
 \end{lstlisting}
 
-We kunnen een variabele gelijk initialiseren:
+en vervolgens informatie toekennen:
 
 \begin{lstlisting}[caption=]
-struct punt C = { 1.2, 3.4 };
-\end{lstlisting}
-
-Maar we kunnen ook de \textsl{members} apart een waarde toekennen:
-
-\begin{lstlisting}[caption=]
-struct punt C;
-c.x = 1.2;
-c.y = 3.4;
+jan.studentnummer = 21011009;
+strcpy(jan.achternaam, "Klaassen");
+jan.beoordeling = 7.3;
 \end{lstlisting}
 
 \letop
@@ -2924,7 +2940,7 @@ Schrijf een programma dat de twee structures inleest en vervolgens de afstand tu
 \clearpage
 \section{Pointers}
 \subsection{Introductie}
-In de les heb je het een en ander geleerd over pointers. Een pointer is een variabele die als inhoud een \textsl{adres} bevat. Dit adres is dan het adres waar een andere variabele ligt opgeslagen. Zodoende wijst de pointer dus naar de variabele. In het boek kan je meer vinden over pointers.
+In de les heb je het een en ander geleerd over pointers. Een pointer is een variabele die als inhoud een \textsl{adres} bevat. Dit adres is dan het adres waar een andere variabele ligt opgeslagen. Zodoende ``wijst'' de pointer dus naar de variabele. In het boek kan je meer vinden over pointers.
 
 Hieronder is een programma gegeven dat wat meer vertelt over pointers. Kopieer het programma in een nieuw project en start het programma. Bestudeer de uitvoer nauwgezet.
 
@@ -2969,13 +2985,10 @@ Ook de naam van een functie, bijvoorbeeld \lstinline|printf|, is een pointer, ma
 \letop
 
 \subsection{Array afdrukken}[A]
-Schrijf een programma dat een array van tien integers met behulp van een pointer afdrukt. Definieer zelf een array.
+Schrijf een programma dat een array van tien integers met behulp van een pointer afdrukt. Definieer zelf de inhoud van de array.
 
 \subsection{Array afdrukken, reprise}[B]
-Schrijf een programma dat een array van \textsl{onbekende} lengte gevuld met integers met behulp van een pointer afdrukt. Definieer zelf een array.
-
-%\subsection{Array van string}[A]
-%Schrijf een programma dat een array van strings afdruk.
+Schrijf een programma dat een array van \textsl{onbekende} lengte gevuld met integers met behulp van een pointer afdrukt. Definieer zelf de inhoud van de array.
 
 \subsection{String achterstevoren afdrukken}[B]
 Schrijf een functie die een meegegeven string (dus als argument) van willekeurige lengte achterstevoren afdrukt. Maak gebruik van een pointer. De string mag niet aangepast worden in de functie. Test de functie met een hoofdprogramma.
@@ -2987,11 +3000,10 @@ Schrijf een functie die in een meegegeven string (dus als argument) van willekeu
 Schrijf een functie die een meegegeven array van integers en een meegegeven lengte van de array in elementen, omkeert. Het eerste en laatste element worden dus verwisseld. Zo ook met de andere elementen. Maak gebruik van pointers. Test de functie met een hoofdprogramma.
 
 \subsection{Zoek het grootste getal}[A]
-Gegeven is een array van integers (die moet je zelf vullen). Schrijf een functie die van de meegegeven array het grootste getal bepaalt. Natuurlijk moet ook de lengte van de array meegegeven worden. Het adres van het grootste getal moet via een pointer worden teruggegeven. Schrijf een hoofdprogramma die de functie aanroept en via de teruggeven pointer het grootste getal afdrukt.
+Gegeven is een array van integers (die moet je zelf vullen). Schrijf een functie die van de meegegeven array het grootste getal bepaalt. Natuurlijk moet ook de lengte van de array meegegeven worden. Het \textsl{adres} van het grootste getal moet via een pointer worden teruggegeven. Schrijf een hoofdprogramma die de functie aanroept en via de teruggeven pointer het grootste getal afdrukt.
 
 \subsection{Vervangen van karakter}[A]
 Schrijf een functie die in een meegegeven string, het meegegeven karakter vervangt door een tweede meegegeven karakter. Maak gebruik van pointers in deze functie. Test de functie met een hoofdprogramma.
-
 
 \subsection{Vervangen van woord}[C]
 Voor het vervangen van een woord in een string is in C geen functie beschikbaar. Die zal je dus zelf moeten schrijven. Schrijf een functie:
@@ -3002,7 +3014,7 @@ int stringreplace(char *str, char *what, char *with)
 
 die in de string \lstinline|str| zoekt naar het woord aangegeven door \lstinline|what| en vervangt door het woord aangegeven door \lstinline|with|. De return-waarde is het aantal vervangingen en kan natuurlijk ook 0 zijn. Schrijf een hoofdprogramma om de functie te testen. Noot: let erop dat de lengte van \lstinline|with| groter kan zijn dan de lengte van \lstinline|what|. Zorg ervoor dat de ruimte van de string \lstinline|str| groot genoeg is. Maak gebruik van pointers.
 
-\subsection{Dynamische array}[B]
+\subsection{Dynamische array}[C]
 Schrijf een programma dat met behulp van \textsl{dynamische geheugenallocatie} een array van integers van willekeurige lengte van het toetsenbord inleest en deze array netjes afdrukt. De spil in deze opdracht is het gebruik van de de functie \lstinline|calloc|. Zie bijvoorbeeld \url{https://www.cplusplus.com/reference/cstdlib/calloc/}.
 
 \subsection{Onbeperkt}[E]
