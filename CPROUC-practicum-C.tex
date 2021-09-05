@@ -159,7 +159,7 @@
   directivestyle=\color{preprocessor},
   % keywordstyle see below
   %% Line numbers
-  numbers=none,
+  numbers=left,
   numberstyle=\tiny\color{gray},
   stepnumber=1,                           
   numbersep=8pt,
@@ -215,7 +215,7 @@
 
 %% Set the extra <whatever> to colors...
 \lstset{
-  keywords=[10]{fib,leesCijfer,fflush,exit,malloc,free,realloc,catalan,faculteit,catalanRecursief,collatzSteps,max2,leesGetal,gemiddelde,kgv,ggd,leesEnBerekenSom,leesEnBerekenMod9,isprime,isisolatedprime,sinc,aantal_delers,reverse,strrev,is_palindroom,controleerNedEuroID,doorsnede,uniek,rlecompress,roll_dice,rand,stringreplace,scanf_s,getoneline},  % User functions
+  keywords=[10]{fib,leesCijfer,fflush,exit,malloc,free,realloc,catalan,faculteit,catalanRecursief,collatzSteps,max2,leesGetal,gemiddelde,kgv,ggd,leesEnBerekenSom,leesEnBerekenMod9,isprime,isisolatedprime,sinc,aantal_delers,reverse,strrev,is_palindroom,controleerNedEuroID,doorsnede,uniek,rlecompress,roll_dice,rand,stringreplace,scanf_s,getoneline,opvolgorde},  % User functions
   keywords=[11]{punt,student},  % Typedef'd types
   keywords=[12]{},  % Macros
   keywords=[13]{},  % System header files
@@ -234,8 +234,8 @@
 \usepackage{titletoc}
 \titleformat{\subsection}{\bfseries\large}{\secmark\thesubsection}{1em}{}
 \ExplSyntaxOn
-\seq_new:N \g__diff_seq
-\seq_gclear:N \g__diff_seq
+\seq_new:N \g__diff_tl
+\seq_gclear:N \g__diff_tl
 
 %% Must be done *after* \titleformat
 %% Make a link to the original \subsection
@@ -254,7 +254,7 @@
   %% Typeset subsection with optional third argument
   \Oldsubsection{#2}
   %% if third argument, add to the sequence
-  \IfNoValueF { #3 } { \seq_gput_right:Nx \g__diff_seq {\thesubsection\space\space #3 \\} }
+  \IfNoValueF { #3 } { \seq_gput_right:Nx \g__diff_tl {\thesubsection\space\space #3 \\} }
 }
 %% Create command and set to empty
 \newcommand*{\secmark}{}
@@ -805,6 +805,9 @@ Maak een project aan en plaats daarin de onderstaande code. Laat zien dat het we
 #include <stdio.h>
 #include <math.h>
 
+/* For Visual Studio */
+#pragma warning(disable : 4996)
+
 int main(void) {
     double x, y, wortel, macht;
     int i;
@@ -1119,10 +1122,12 @@ Zorg ervoor dat de gebruiker alleen temperaturen een windsnelheden invoert die z
 De wiskundige constante e wordt benaderd door:
 
 \begin{equation*}
-\mathrm{e} = 1 + \dfrac{1}{1!} + \dfrac{1}{2!} + \dfrac{1}{3!} + \dfrac{1}{4!} + \dfrac{1}{5!} + \cdots = \sum_{n=0}^{\infty} \dfrac{1}{n!}
+\mathrm{e} = \dfrac{1}{0!} + \dfrac{1}{1!} + \dfrac{1}{2!} + \dfrac{1}{3!} + \dfrac{1}{4!} + \dfrac{1}{5!} + \cdots = \sum_{n=0}^{\infty} \dfrac{1}{n!}
 \end{equation*}
 
 De reeks heeft oneindig veel termen, maar er is al een redelijke benadering te maken met 7 termen. Bij~7 termen is de fout namelijk kleiner dan 0,00005. Ontwerp een programma dat de gebruiker om een geheel getal $n$ ($n > 0$) vraagt, dit getal stelt het aantal uit te rekenen termen voor. Het programma rekent de constante e uit op basis van herhaald optellen. Gebruik hiervoor een \lstinline|for| loop. Zorg ervoor dat het programma goed omgaat met de invoer $n \leq 0$ door gebruik te maken van een \lstinline|do while| loop.
+
+Overigens staat in de formule $0!$. De wiskundigen hebben afgesproken dat $0!$ gelijk is aan 1. Bij het gebruik van integers kan $n$ niet te groot zijn (maximaal 13) omdat bij grotere waarden overflow in het berekenen van de faculteit optreedt. Je kan ook gebruik maken van doubles.
 
 Ontwerp een nieuw programma waarbij weer $n$ wordt gevraagd maar waarbij een lijst van uitgerekende benaderingen van de constante e wordt weergegeven met het aantal termen tussen 1 en $n$. Hierbij kan je goed zien hoe de waarde van de constante e wordt benaderd. Maak gebruik van een \lstinline|for| loop.
 
@@ -1146,7 +1151,7 @@ Alle spanningen in de schakeling zijn in de beginsituatie 0 V.
 \end{tikzpicture}
 \end{figure}
 
-Op een bepaald moment wordt op de ingang een constante spanning van 10 V aangeboden. De condensator zal hierdoor langzaam ``vollopen'' waardoor de spanning over de condensator stijgt. De snelheid waarmee dat gebeurt, is afhankelijk van de waarden van $R$ en $C$ en de tijd $t$.
+Op een bepaald moment wordt op de ingang een constante spanning van 10 V aangeboden. De condensator zal hierdoor langzaam ``vollopen'' waardoor de spanning over de condensator stijgt. De snelheid waarmee dat gebeurt, is afhankelijk van de waarden van $R$ in Ohm, $C$ in Farad en de tijd $t$ in seconden.
 De uitgangsspanning $U_{uit}$ als functie van de tijd kan als volgt berekend worden:
 
 \begin{equation*}
@@ -1155,7 +1160,7 @@ U_{uit}(t) = 10\cdot(1-\mathrm{e}^{-t/RC}) \qquad\qquad\qquad (\text{e is het gr
 
 %In de formule is het product van $R$ en $C$ is zien. Dit wordt de \textsl{tijdconstante} van de schakeling genoemd.
 
-Schrijf een programma dat de uitgangsspanning $U_{uit}$ berekend als functie van $R$, $C$ en de tijd. Het programma moet de waarden van $R$ en $C$ inlezen (beide moeten groter zijn dan 0) en daarna moet het aantal te berekenen seconden worden ingevoerd (groter dan 0). Het programma berekent vanaf tijdstip 0 op iedere seconde de waarde van de uitgangsspanning. Hieronder zie je een mogelijke uitvoer van het programma.
+Schrijf een programma dat de uitgangsspanning $U_{uit}$ berekend als functie van $R$, $C$ en de tijd. Het programma moet de waarden van $R$ en $C$ inlezen (beide moeten groter zijn dan 0) en daarna moet het aantal te berekenen seconden worden ingevoerd (groter dan 0). Het programma berekent vanaf tijdstip 0 op iedere seconde de waarde van de uitgangsspanning. Hieronder zie je een mogelijke uitvoer van het programma met de berekende spanning op twee decimalen nauwkeurig.
 
 \begin{lstlisting}[caption=]
 Geef de waarde van R (R > 0): 2.5
@@ -1186,17 +1191,16 @@ tijd spanning
  20  9.97
 \end{lstlisting}
 
-Merk op dat, naar mate de tijd toeneemt, de uitgangsspanning steeds dichter bij 10 V komt, maar nooit helemaal 10 V zal worden.
+Merk op dat, naar mate de tijd toeneemt, de uitgangsspanning steeds dichter bij 10 V komt, maar nooit helemaal 10 V zal worden. (Uiteindelijk wel, maar dat heeft met afrondingen van de floating point-getallen te maken).
 
 \subsection{Stroom door een diode}[C]
 Een \textsl{diode} is een elektronische component die vaak gebruikt wordt, bijvoorbeeld in gelijkrichtschakelingen. De relatie tussen de spanning \textsl{over} en de stroom \textsl{door} de diode is gegeven met de formule van Shockley en geldt voor een ideale diode:
 
-\begin{equation}
-I_{diode} = I_s\cdot(\mathrm{e}^{\frac{U_{diode}}{U_T}}-1)
-\end{equation}
+\begin{equation*}
+I_{diode} = I_s\cdot(\mathrm{e}^{\frac{U_{diode}}{U_T}}-1) \qquad\qquad\qquad (\text{e is het grondtal van de natuurlijke logaritme, e}\approx\ 2,71828)
+\end{equation*}
 
 Hierin is $I_s$ de donkerstroom (typisch \SI{1e-9}{\milli\ampere}) en $U_T$ de thermische spanning (typisch \SI{25}{\milli\volt}).
-
 
 \begin{figure}[!ht]
 \centering
@@ -1232,7 +1236,7 @@ We zien dat de stroom nagenoeg 0 is bij spanningen kleiner dan \SI{0.4}{\volt} e
 
 Schrijf een programma dat de stroom door de diode berekent, tussen de spanningen \SI{0.4}{\volt} en \SI{0.6}{\volt} met stappen van \SI{0.01}{\volt}.
 
-\subsection{Booglengte van één periode van een sinus}[C]
+\subsection{Booglengte van één periode van een sinus}[D]
 We willen graag de booglengte weten van één periode van een sinus. We gaan uit van de functie $f(x) = \sin x$. Eén periode van de sinus is getekend in de onderstaande figuur.
 
 \begin{figure}[H]
@@ -1279,8 +1283,8 @@ De lengte van één stuk van de rode lijn is uit te rekenen met behulp van de st
 	\pgfmathsetmacro{\y}{sin(pi/4 r)}
 	\pgfmathsetmacro{\ynext}{sin(pi/2 r)}
 	\draw[color=red] (pi/4,\y) -- (pi/2,\ynext) node[midway,below right,color=black] {$\Delta s$};
-	\draw[color=black] (pi/4,\y) -- (pi/2,\y) node[midway,below,color=black] {$\Delta x$};
-	\draw[color=black] (pi/2,\y) -- (pi/2,\ynext) node[midway,right,color=black] {$\Delta y$};
+	\draw[color=black,latex-latex] (pi/4,\y) -- (pi/2,\y) node[midway,below,color=black] {$\Delta x$};
+	\draw[color=black, latex-latex] (pi/2,\y) -- (pi/2,\ynext) node[midway,right,color=black] {$\Delta y$};
 	\fill[color=blue] (pi/4,\y) circle (0.3pt);
 	\fill[color=blue] (pi/2,\ynext) circle (0.3pt);
 	\node at (pi/1.35, 0.866) {\(\displaystyle \Delta s = \sqrt{(\Delta x)^2 + (\Delta y)^2}\)};
@@ -1292,7 +1296,7 @@ Als we nu alle lengtes van de lijnstukken optellen, benaderen we de booglengte v
 Schrijf een programma dat de lengte van \'e\'en periode van de sinus bepaalt. Het aantal stappen moet worden ingevoerd als een geheel getal $n$ ($n>1$).
 
 
-\subsection{Oppervlakte bepalen}[D]
+\subsection{Oppervlakte bepalen}[C]
 Gegeven is de functie:
 
 \begin{equation*}
@@ -1308,14 +1312,14 @@ De functie is te zien in onderstaande figuur voor de grenzen $x=0$ tot $x=5$.
     axis background/.style={fill=yellow!30},
     axis x line=middle,
     axis y line=middle,
-    ymax=2.1, ymin=-1.1]
+    ymax=2.1, ymin=-1.1,
+    height = 6cm]
     \addplot[name path=f, color=blue,samples=51,semithick, domain=-1.3:6] plot (\x, {-0.1*\x^3+0.5*\x^2});
     \path[name path=xaxis] (axis cs:-1,0) -- (axis cs:6,0);
     \addplot [thick, fill=blue, fill opacity=0.25]
                   fill between[of=f and xaxis, soft clip={domain=0:5}];
     \node[right] at (axis cs: 4.5,1.5) {$f(x)$};
-    \node at (axis cs: 2.5,-0.7) {$O$};
-    \draw[-Circle] (axis cs: 2.5,-0.6) -- (axis cs: 3,1);
+    \draw[-Circle] (axis cs: 2.5,-0.6) node[below] {$O$} -- (axis cs: 3,1);
     \end{axis}
 \end{tikzpicture}%
 \end{figure}
@@ -1324,7 +1328,7 @@ Schrijf een programma dat de oppervlakte van de functie berekent binnen het dome
 
 
 \clearpage
-\section{Beslissingsopdrachten (\texttt{if}, \texttt{switch})}
+\section{Beslissingsopdrachten (\texttt{if}, \texttt{if else}, \texttt{switch})}
 
 \subsection{Inleiding}
 In de opdrachten van dit hoofdstuk wordt gevraagd een programma te schrijven, waarin gebruik wordt gemaakt van inlees- en schrijfinstructies, toekenningsopdrachten, een herhalingsopdracht en één of meer beslissingsopdrachten. Er zijn drie verschillende beslissingsopdrachten: \lstinline|if|, \lstinline|if else| en \lstinline|switch|. De \lstinline|if| of \lstinline|if else| kun je gebruiken bij een eenvoudige beslissing, bijvoorbeeld om te beslissen of een getal groter is dan 10. De \lstinline|switch| gebruik je als je één variabele moet testen op verschillende mogelijke waarden. Hieronder zie je een voorbeeld van het gebruik van een \lstinline|switch|.
@@ -1333,6 +1337,9 @@ Maak een project aan en plaats daarin de onderstaande code. Laat zien dat het we
 
 \begin{lstlisting}[caption=]
 #include <stdio.h>
+
+/* For Visual Studio */
+#pragma warning(disable : 4996)
 
 int main(void){
     int cijfer;
@@ -1526,7 +1533,7 @@ a_2x + b_2y = c_2
 \end{split}
 \end{equation*}
 
-Schrijf een programma dat de gegevens $a_1$, $b_1$, $c_1$, $a_2$, $b_2$ en $c_2$ van het toetsenbord inleest en vervolgens het stelsel oplost. Hint: bereken eerst $d=a_1b_2-a_2b_1$. Als $d=0$ dan is er geen oplossing voor dit stelsel. Je kan $x$ en $y$ berekenen met:
+Schrijf een programma dat de gegevens $a_1$, $b_1$, $c_1$, $a_2$, $b_2$ en $c_2$ van het toetsenbord inleest en vervolgens het stelsel oplost. Hint: bereken eerst $d=a_1b_2-a_2b_1$. Als $d=0$ dan is er geen oplossing voor dit stelsel. Als $d\neq0$, kan $x$ en $y$ berekenen met:
 
 \begin{equation*}
 \begin{split}
@@ -1534,6 +1541,8 @@ x = \dfrac{b_2c_1-b_1c_2}{d}\\
 y = \dfrac{a_1c_2-a_2c_1}{d}
 \end{split}
 \end{equation*}
+
+Opmerking: een stelsel van lineaire vergelijkingen komt voor in het oplossen van \textsl{knooppuntspanningen} in een elektrisch schema.
 
 \clearpage
 \section{Functies}
@@ -1545,6 +1554,9 @@ Na de laatste theorieles in week 3 heb je de huiswerkopdracht gekregen om een re
 
 \begin{lstlisting}[caption=]
 #include <stdio.h>
+
+/* For Visual Studio */
+#pragma warning(disable : 4996)
 
 int fib(int n) {
     if (n < 2) {
@@ -1581,6 +1593,7 @@ int fib(int n) {
 } 
 \end{lstlisting}
 
+\vspace*{-0.99em}
 \letop
 \clearpage
 
@@ -2615,7 +2628,7 @@ Gegeven is de functie:
 f(x) = \frac{1}{10}x^3 - \frac{2}{5}x^2 + x - 1
 \end{equation}
 
-De grafiek van de functie is te zien in de onderstaande figuur. We zien dat het nulpunt tussen 0 en 2 ligt. Met behulp van de \textsl{bisectie-methode} (ook wel halveringsmethode genoemd) kan de x-coördinaat van het nulpunt met willekeurige precisie benaderd worden. Zie voor een uitleg \url{https://en.wikipedia.org/wiki/Bisection_method}.
+De grafiek van de functie is te zien in de onderstaande figuur. We zien dat het \textsl{nulpunt}, waarbij de y-co\"ordinaat 0 is, tussen $x=0$ en $x=2$ ligt. Met behulp van de \textsl{bisectie-methode} (ook wel halveringsmethode genoemd) kan de x-coördinaat van het nulpunt met willekeurige precisie benaderd worden. Zie voor een uitleg \url{https://en.wikipedia.org/wiki/Bisection_method}.
 
 \begin{figure}[!ht]
 \centering
@@ -2644,6 +2657,9 @@ Hieronder is een programma dat een aantal waarden inleest in een array en vervol
 
 \begin{lstlisting}[caption=]
 #include <stdio.h>
+
+/* For Visual Studio */
+#pragma warning(disable : 4996)
 
 #define AANTAL 10
 
@@ -2755,7 +2771,7 @@ In de statistiek wordt gebruikt gemaakt van lineaire regressie. Stel, je meet de
 
 De gebruiker moet een aantal x-y paren invoeren. Dit aantal wordt gevraagd aan de gebruiker en ligt tussen 2 en 100. Daarna moeten de x-y paren worden gevraagd. Vervolgens berekent het programma de rechte lijn die het best past bij de meetgegevens. 
 
-Een rechte lijn wordt gegeven door $y = \beta\cdot x + \alpha$. Om de parameters te vinden moet je de volgende berekeningen doen:
+Deze rechte lijn wordt gegeven door $y = \beta\cdot x + \alpha$. Om de parameters $\beta$ en $\alpha$ te vinden, moet je de volgende berekeningen doen:
 
 \begin{align*}
 \beta &= \dfrac{\sum\limits_{i=1}^{n}\left(x_i-\overline{x}\right)\left(y_i-\overline{y}\right)}{\sum\limits_{i=1}^{n}\left(x_i-\overline{x}\right)^2} \\
@@ -2763,7 +2779,7 @@ Een rechte lijn wordt gegeven door $y = \beta\cdot x + \alpha$. Om de parameters
 \end{align*}
 
 
-Hierin zijn $\overline{x}$ en $\overline{y}$ de gemiddelden van de x-gegevens resp. de y-gegevens.
+Hierin zijn $\overline{x}$ en $\overline{y}$ de rekenkundige gemiddelden van de $x$-gegevens resp. de $y$-gegevens.
 
 Verzin zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
@@ -2830,7 +2846,7 @@ kan de volgende uitvoer geven:
 Bereken zelf ook een aantal testwaardes.
 
 \subsection{Run Length encoding}[D]
-Run Length Encoding is een van de oudste compressiemethoden. Een reeks identieke, naast elkaar geplaatste karakters (een Run) wordt vervangen door het aantal karakters (Length) en het karakter.
+Run Length Encoding (RLE) is een van de oudste compressiemethoden. Een reeks identieke, naast elkaar geplaatste karakters (een Run) wordt vervangen door het aantal karakters (Length) en het karakter.
 
 Zo wordt de invoer van de string:
 
@@ -2852,7 +2868,7 @@ Schrijf een programma dat een string inleest en deze string RLE-gecodeerd in een
 double rlecompress(char invoerstring[], char rlestring[]). 
 \end{lstlisting}
 
-Zorg ervoor dat de string \lstinline|rlestring| groot genoeg Is om de gecomprimeerde string op te slaan. De return-waarde is de compressieratio: de lenge van \lstinline|rlestring| gedeeld door de lengte van invoerstring.
+Zorg ervoor dat de string \lstinline|rlestring| groot genoeg Is om de gecomprimeerde string op te slaan. De return-waarde is de compressieratio: de lenge van \lstinline|rlestring| gedeeld door de lengte van \lstinline|invoerstring|.
 
 Verzin zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nakijken.
 
@@ -2861,7 +2877,7 @@ Het gooien van dobbelstenen doen we al sinds mensenheugenis. Er zijn veel spelle
 
 Schrijf een programma dat de gebruiker vraagt hoe vaak de twee dobbelstenen gegooid moeten worden (getal > 2). Maak een functie \lstinline|roll_dice()| die het gooien van één dobbelsteen simuleert. Met deze functie kan je het aantal gegooide ogen van twee dobbelstenen simuleren. Houd in een array bij hoe vaak een bepaald aantal ogen wordt gegooid. Druk aan het einde van de simulatie van alle mogelijke combinaties het gegooide aantal ogen af.
 
-Bij deze opdracht moet je gebruik maken van de \textsl{pseudo random generator} in C. De term ``pseudo'' geeft aan dat het hier om een random generator gaat niet niet geheel random is (maar goed genoeg voor ons experiment). Om te beginnen moet je een \textsl{seed} zetten. Dat is het startpunt van onze reeks. Daarna kan je via de functie \lstinline|rand()| een random getal opvragen. Zie voor meer informatie: \url{http://www.gnu.org/software/libc/manual/html_node/ISO-Random.html#ISO-Random}.
+Bij deze opdracht moet je gebruik maken van de \textsl{pseudo random generator} in C. De term ``pseudo'' geeft aan dat het hier om een random generator gaat die niet geheel random is (maar goed genoeg voor ons experiment). Om te beginnen moet je een \textsl{seed} zetten. Dat is het startpunt van onze reeks. Daarna kan je via de functie \lstinline|rand()| een random getal opvragen. Zie voor meer informatie: \url{http://www.gnu.org/software/libc/manual/html_node/ISO-Random.html#ISO-Random}.
 
 \subsection{Overtollige spaties en tabs verwijderen}[C]
 Bij het \textsl{parsen} (ontleden) van een string is het soms nodig om overtollige spaties en tabs te verwijderen. Met het verwijderen wordt bedoeld dat een reeks van aaneengesloten spaties en/of tabs worden vervangen door één spatie. Spaties aan het begin en einde van een string moeten in het geheel verwijderd worden. Dit wordt \textsl{trimming} genoemd. Hieronder zie je een voorbeeld waarbij spaties zijn vervangen door het \lstinline[keepspaces=true,columns=fixed,showspaces=true]| |-symbool en tabs zijn vervangen door het \lstinline[showspaces=true,showtabs=true]|	|-symbool.
@@ -2890,13 +2906,44 @@ We bekijken \textbf{alleen} de cijfers en getallen. Natuurlijk is de bewering ni
 
 Hint: maak gebruik van twee arrays. Array \lstinline|int a[10]| bevat het aantal cijfers in getalvorm, dus element \lstinline|a[0]| bevat het aantal nullen in getalvorm. In array \lstinline|int b[10]| houd je bij hoe vaak een cijfer voorkomt in de getallen van array \lstinline|a|. Dus \lstinline|b[1]| zou ``10'' kunnen bevatten omdat er in de getallen van array \lstinline|a| 10 keer een~1 voorkomt. Ga ervan uit dat een cijfer niet meer dan 99 keer voorkomt. Bedenk ook dat het aantal voorkomingen van een cijfer minstens 1 is (kijk hierbij naar de zin).
 
+%% Staat al in het boek
+%\subsection{Stack}[B]
+%Een \textsl{stack} is een datastructuur met de volgende kenmerken. De stack heeft een vaste lengte. Er zijn drie functies: initialiseer de stack, zet iets op de stack (\textsl{push}) en haal iets van de stack (\textsl{pop}). Een stack is te realiseren met een array (bijvoorbeeld integers) met vaste lengte en de functies \lstinline|init|, \lstinline|push| en \lstinline|pop|. Met de functie \lstinline|init| wordt de stack leeggemaakt. De functie \lstinline|push| zet iets op de stack zonder de aanwezige informatie aan te passen. De functie \lstinline|pop| haalt het laatste ingebrachte waarde van de stack. Deze waarde is dan ``verdwenen''. Een mogelijke sequentie is hieronder te zien:
+%
+%\begin{lstlisting}[caption=]
+%init();
+%push(43);
+%push(56);
+%int i = pop();  // i == 56
+%int j = pop();  // j == 43
+%\end{lstlisting}
+%
+%Ontwerp de stack en de functies van de stack voor integers.
+
+\subsection{Queue}[D]
+
+Een \textsl{queue} (Nederlands: rij of \textsl{wachtrij}) is een datastructuur met de volgende kenmerken: de queue heeft een vaste lengte. Er zijn drie functies: initialiseer de queue, zet iets in de queue en haal iets van de queue. De functie \lstinline|init| initialiseert de queue; de queue wordt dan leeggemaakt. De functie \lstinline|put| zet iets in de queue zonder de overige informatie aan te passen. De functie \lstinline|get| haalt iets uit de queue, namelijk de informatie die als eerste in de queue is geplaatst. Daarna is die informatie verdwenen en komt eventueel de dan opvolgende informatie beschikbaar. Zodoende ``schuift'' de informatie van \lstinline|put| naar \lstinline|get|.
+
+Een mogelijke sequentie is hieronder te zien:
+
+\begin{lstlisting}[caption=]
+init();
+put(43);
+put(56);
+put(17);
+int i = get();  // i == 43
+int j = get();  // j == 56
+int k = get();  // k == 17
+\end{lstlisting}
+
+Ontwerp de queue en de functies van de queue voor integers.
 
 \clearpage
 \section{Structures}
 
 
 \subsection{Inleiding}
-Een structure in een handige manier om bij elkaar behorende gegevens te gebruiken onder één gemeenschappelijke noemer. Het voordeel van een structure is dat het als geheel kan worden meegegeven als een argument in een functie en dat een functie een complete structure kan retourneren. Daarnaast is het makkelijk om een array van structures te maken zodat dataverwerking kunnen toepassen
+Een structure in een handige manier om bij elkaar behorende gegevens te gebruiken onder één gemeenschappelijke noemer. Het voordeel van een structure is dat het als geheel kan worden meegegeven als een argument in een functie en dat een functie een complete structure kan retourneren. Daarnaast is het makkelijk om een array van structures te maken zodat je dataverwerking kan toepassen
 
 Als voorbeeld zie je hier een structure die toetsresultaten kan opslaan. Een toetsresultaat is gekoppeld aan een student. Van de student wordt het studentnummer en de achternaam, samen met het resultaat in een structure opgeslagen.
 
@@ -2904,28 +2951,83 @@ Als voorbeeld zie je hier een structure die toetsresultaten kan opslaan. Een toe
 struct student {
 	int studentnummer;    // An integer
 	char achternaam[21];  // A string of 20 characters
-	double beoordeling;   // A double between 0.0 and 10.0
+	double resultaat;     // A double between 0.0 and 10.0
+}
+
+struct student jan;
+
+jan.studentnummer = 21011009;          // an integer
+strcpy(jan.achternaam, "Klaassen");    // no more than 20 characters!
+jan.resultaat = 7.3;                   // a double between 0.0 and 10.0
+
+printf("%8d %20s %4.1f\n", jan.studentnummer, jan.achternaam, jan.resultaat);
+\end{lstlisting}
+
+Je kan de \textsl{members} van de structure (\lstinline|studentnummer|, \lstinline|achternaam|, \lstinline|resultaat|) gewoon gebruiken als andere variabelen. Dit is te zien in de toekenningen en in de \lstinline|printf|-regel.
+
+Het is ook mogelijk om een \textsl{array van structures} te definiëren, bijvoorbeeld alle studenten in een klas. We gebruiken hiervoor weer \lstinline|struct student| maar geven nu een array op. Met behulp van een \lstinline|for|-lus kan je langs alle elementen uit de de array ``lopen''.
+
+\begin{lstlisting}[caption=]
+struct student allestudenten[50];
+
+... /* Hier moeten de gegevens worden ingevuld */
+
+/* Afdrukken van de gegevens */
+for (int i = 0; i < 50; i++) {
+    printf("%8d %20s %4.1f\n", allestudenten[i].studentnummer,
+                               allestudenten[i].achternaam,
+                               allestudenten[i].resultaat);
 }
 \end{lstlisting}
 
-We kunnen nu een variabele aanmaken met:
-
-\begin{lstlisting}[caption=]
-struct student piet, jan;
-\end{lstlisting}
-
-en vervolgens informatie toekennen:
-
-\begin{lstlisting}[caption=]
-jan.studentnummer = 21011009;
-strcpy(jan.achternaam, "Klaassen");
-jan.beoordeling = 7.3;
-\end{lstlisting}
+%\begin{lstlisting}[caption=]
+%struct student {
+%	int studentnummer;    // An integer
+%	char achternaam[21];  // A string of 20 characters
+%	double beoordeling;   // A double between 0.0 and 10.0
+%}
+%\end{lstlisting}
+%
+%Je kan nu een variabele aanmaken met:
+%
+%\begin{lstlisting}[caption=]
+%struct student piet, jan;
+%\end{lstlisting}
+%
+%en vervolgens informatie toekennen:
+%
+%\begin{lstlisting}[caption=]
+%jan.studentnummer = 21011009;          // an integer
+%strcpy(jan.achternaam, "Klaassen");    // no more than 20 characters!
+%jan.beoordeling = 7.3;                 // a double between 0.0 and 10.0
+%\end{lstlisting}
+%
+%Natuurlijk kan je de gegevens ook afdrukken:
+%
+%\begin{lstlisting}[caption=]
+%printf("%8d %20s %4.1f\n", jan.studentnummer, jan.achternaam, jan.beoordeling);
+%\end{lstlisting}
+%
+%Je kan de \textsl{members} van de structure (\lstinline|studentnummer|, \lstinline|achternaam|, \lstinline|beoordeling|) gewoon gebruiken als andere variabelen. Het is ook mogelijk om een array van structures te definiëren:
+%
+%\begin{lstlisting}[caption=]
+%struct student allestudenten[50];
+%\end{lstlisting}
+%
+%Met behulp van een \lstinline|for|-lus kan je langs alle elementen uit de de array ``lopen''.
+%
+%\begin{lstlisting}[caption=]
+%for (int i = 0; i < 50; i++) {
+%    printf("%8d %20s\n", allestudenten.studentnummer,
+%                         allestudenten.achternaam);
+%}
+%\end{lstlisting}
 
 \letop
 \clearpage
 
 \subsection{Afstand tussen twee punten}[A]
+\label{opd:structpunt}
 Gegeven zijn twee punten in een 2-dimensionaal vlak. De punten worden gegeven via de structure:
 
 \begin{lstlisting}[caption=]
@@ -2934,7 +3036,49 @@ struct punt {
 }
 \end{lstlisting}
 
+In de onderstaande figuur is een uitbeelding te zien van de twee punten en een lijn tussen de twee punten.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[background rectangle/.style={fill=yellow!30}, show background rectangle]
+\draw[help lines] (0,0) grid (5,4); 
+\draw[red] (1,1) -- (4,3);
+\draw[fill=black] (0,0) circle (0.1);
+\end{tikzpicture}
+\end{figure}
+
 Schrijf een programma dat de twee structures inleest en vervolgens de afstand tussen deze twee punten berekent en afdrukt. Hint: gebruik de stelling van Pythagoras.
+
+
+\subsection{Omtrek van een polygon}[C]
+Een \textsl{polygon} is een 2-dimensionale figuur waarbij een aantal punten verbonden worden met lijnen. Een voorbeeld van een polygon is te zien in onderstaande figuur. Schrijf een programma dat de punten van de polygon inleest en de omtrek van de polygon berekent. Ga ervan uit dat maximaal 5 punten worden ingelezen. Maak gebruik van de structure in opdracht~\ref{opd:structpunt}. Hint: gebruik de stelling van Pythagoras.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[background rectangle/.style={fill=yellow!30}, show background rectangle]
+\draw[help lines] (0,0) grid (5,5); 
+\draw[red] (1,1) -- (2,3) -- (4,4) -- (3,0) -- cycle;
+\draw[fill=black] (0,0) circle (0.1);
+\end{tikzpicture}
+\end{figure}
+
+\subsection{Tijd naar seconden}[B]
+\label{opd:structtijd}
+Gegeven is de variabele \lstinline|tijd| met de volgende definitie:
+
+\begin{lstlisting}[caption=]
+struct urenminutenseconden {
+    int uren,
+    int minuten,
+    int seconden
+} tijd;
+\end{lstlisting}
+
+Schrijf een functie \lstinline|lees_tijd| die de uren, minuten en seconden inleest in de structure \lstinline|tijd|. Schrijf vervolgens een functie \lstinline|bereken_seconden| die de structure meekrijgt als parameter en het aantal seconden die deze tijd vertegenwoordigd, teruggeeft. Schrijf een hoofdprogramma die de functies test.
+
+\subsection{Seconden naar tijd}[C]
+Schrijf een programma die het aantal seconden inleest en omzet naar uren, minuten en seconden. Dit omzetten moet gedaan worden in een functie. De functie krijgt het aantal seconden mee en geeft de uren, minuten en seconden in een structure terug. Deze structure is te vinden in opdracht~\ref{opd:structtijd}. Schrijf een hoofdprogramma om de functie te testen.
+ 
 
 
 \clearpage
@@ -2944,6 +3088,8 @@ In de les heb je het een en ander geleerd over pointers. Een pointer is een vari
 
 Hieronder is een programma gegeven dat wat meer vertelt over pointers. Kopieer het programma in een nieuw project en start het programma. Bestudeer de uitvoer nauwgezet.
 
+\begin{figure}[H]
+\centering
 \begin{lstlisting}[caption=]
 #include <stdio.h>
 
@@ -2973,22 +3119,23 @@ int main(void) {
     return 0;
 }
 \end{lstlisting}
+\end{figure}
 
 Een pointer wordt in C aangegeven door een \lstinline|*| voor de variabelenaam te plaatsen. Bij het definitie van een variabele, zoals in \lstinline|int *pi;| zal de compiler een pointer aanmaken. Bij gebruik in een statement, zoals in \lstinline|i = *pi;| wordt de inhoud van de variabele waar de pointer naar toewijst gebruikt. 
 
 Het adres van een variabele is op te vragen door een \lstinline|&| voor de variabele te plaatsen. Dus het statement \lstinline|pi = &i;| zorgt ervoor dat pointer \lstinline|pi| ``wijst'' naar variabele \lstinline|i|.
 
-Arrays kunnen in C via pointers bewerkt worden. Sterker nog, er is geen fundamenteel verschil tussen arrays en pointers, alleen de notatie is anders. De naam van de array mag bijvoorbeeld als pointer naar het eerste element uit de array gebruikt worden. Om het tweede element van een array te gebruiken kunnen we dus \lstinline|i = ary[1];| óf \lstinline|i = *(ary+1);|.De haakjes zijn nodig omdat \lstinline|*| een hogere prioriteit heeft dan \lstinline|+|.
+Arrays kunnen in C via pointers bewerkt worden. Sterker nog, er is geen fundamenteel verschil tussen arrays en pointers, alleen de notatie is anders. De naam van de array mag bijvoorbeeld als pointer naar het eerste element uit de array gebruikt worden. Om het tweede element van een array te gebruiken kunnen we dus \lstinline|i = ai[1];| óf \lstinline|i = *(ai+1);|. De haakjes zijn nodig omdat \lstinline|*| een hogere prioriteit heeft dan \lstinline|+|.
 
 Ook de naam van een functie, bijvoorbeeld \lstinline|printf|, is een pointer, maar nu naar het begin van een functie. Dit worden functiepointers genoemd. Dit soort pointers komt niet zoveel voor.
 
 \letop
 
 \subsection{Array afdrukken}[A]
-Schrijf een programma dat een array van tien integers met behulp van een pointer afdrukt. Definieer zelf de inhoud van de array.
+Schrijf een functie die een array van tien integers met behulp van een pointer afdrukt. Definieer zelf de inhoud van de array. Test de functie met een hoofdprogramma.
 
 \subsection{Array afdrukken, reprise}[B]
-Schrijf een programma dat een array van \textsl{onbekende} lengte gevuld met integers met behulp van een pointer afdrukt. Definieer zelf de inhoud van de array.
+Schrijf een functie die een array van \textsl{variabele} lengte gevuld met integers met behulp van een pointer afdrukt. De lengte moet dus tijdens run-time berekend en meegegeven worden. Definieer zelf de inhoud van de array. Test de functie met een hoofdprogramma.
 
 \subsection{String achterstevoren afdrukken}[B]
 Schrijf een functie die een meegegeven string (dus als argument) van willekeurige lengte achterstevoren afdrukt. Maak gebruik van een pointer. De string mag niet aangepast worden in de functie. Test de functie met een hoofdprogramma.
@@ -2997,13 +3144,25 @@ Schrijf een functie die een meegegeven string (dus als argument) van willekeurig
 Schrijf een functie die in een meegegeven string (dus als argument) van willekeurige lengte het aantal woorden telt. De woorden in de string worden gescheiden door spaties. Vergeet de woorden aan het begin en einde van de string mee te tellen. Het getelde aantal woorden wordt als returnwaarde teruggegeven. Maak gebruik van pointers. Test de functie met een hoofdprogramma.
 
 \subsection{Array van integers omkeren}[A]
-Schrijf een functie die een meegegeven array van integers en een meegegeven lengte van de array in elementen, omkeert. Het eerste en laatste element worden dus verwisseld. Zo ook met de andere elementen. Maak gebruik van pointers. Test de functie met een hoofdprogramma.
+Schrijf een functie die een meegegeven array van integers en een meegegeven lengte van de array in elementen, omkeert. Het eerste en laatste element worden dus verwisseld, het tweede en het een-na-laatste element worden verwisseld, enzovoorts. Zo ook met de andere elementen. Maak gebruik van pointers. Test de functie met een hoofdprogramma.
 
 \subsection{Zoek het grootste getal}[A]
 Gegeven is een array van integers (die moet je zelf vullen). Schrijf een functie die van de meegegeven array het grootste getal bepaalt. Natuurlijk moet ook de lengte van de array meegegeven worden. Het \textsl{adres} van het grootste getal moet via een pointer worden teruggegeven. Schrijf een hoofdprogramma die de functie aanroept en via de teruggeven pointer het grootste getal afdrukt.
 
+\subsection{Op volgorde}[B]
+Schrijf een functie \lstinline|opvolgorde| die drie pointers naar integers meekrijgt en via deze pointers de integers op oplopende volgorde sorteert. Stel dat de integers \lstinline|i|, \lstinline|j| en \lstinline|k| zijn. Dan moet na de aanroep
+
+\begin{lstlisting}[caption=]
+opvolgorde(&i, &j, &k)
+\end{lstlisting}
+
+gelden dat \lstinline|i| $\leq$ \lstinline|j| $\leq$ \lstinline|k|.
+
+\subsection{Zoek laatste getal}[B]
+Schrijf een functie die in een meegegeven array van integers zoekt naar een eveneens meegegeven getal. De lengte van de array moet natuurlijk ook meegegeven worden. De \textsl{laatste} voorkoming van dit getal moet als adres worden teruggegeven. Wordt het getal niet gevonden, dan moet de NULL-pointer worden teruggegeven. Schrijf een hoofdprogramma dat je functie test.
+
 \subsection{Vervangen van karakter}[A]
-Schrijf een functie die in een meegegeven string, het meegegeven karakter vervangt door een tweede meegegeven karakter. Maak gebruik van pointers in deze functie. Test de functie met een hoofdprogramma.
+Schrijf een functie die in een meegegeven string, het meegegeven karakter vervangt door een tweede meegegeven karakter. Maak gebruik van pointers in deze functie. De functie geeft het aantal vervangingen terug als returnwaarde (en dat kan ook 0 zijn). Test de functie met een hoofdprogramma.
 
 \subsection{Vervangen van woord}[C]
 Voor het vervangen van een woord in een string is in C geen functie beschikbaar. Die zal je dus zelf moeten schrijven. Schrijf een functie:
@@ -3015,7 +3174,17 @@ int stringreplace(char *str, char *what, char *with)
 die in de string \lstinline|str| zoekt naar het woord aangegeven door \lstinline|what| en vervangt door het woord aangegeven door \lstinline|with|. De return-waarde is het aantal vervangingen en kan natuurlijk ook 0 zijn. Schrijf een hoofdprogramma om de functie te testen. Noot: let erop dat de lengte van \lstinline|with| groter kan zijn dan de lengte van \lstinline|what|. Zorg ervoor dat de ruimte van de string \lstinline|str| groot genoeg is. Maak gebruik van pointers.
 
 \subsection{Dynamische array}[C]
-Schrijf een programma dat met behulp van \textsl{dynamische geheugenallocatie} een array van integers van willekeurige lengte van het toetsenbord inleest en deze array netjes afdrukt. De spil in deze opdracht is het gebruik van de de functie \lstinline|calloc|. Zie bijvoorbeeld \url{https://www.cplusplus.com/reference/cstdlib/calloc/}.
+Schrijf een programma dat met behulp van \textsl{dynamische geheugenallocatie} een array van integers van willekeurige lengte van het toetsenbord inleest en deze array netjes afdrukt. Het aantal integers moet als getal van het toetsenbord worden ingelezen. De spil in deze opdracht is het gebruik van de de functie \lstinline|calloc|. Zie bijvoorbeeld \url{https://www.cplusplus.com/reference/cstdlib/calloc/}.
+
+\subsection{Dynamische array omkeren}[C]
+Schrijf een programma dat met behulp van \textsl{dynamische geheugenallocatie} een array van integers van willekeurige lengte van het toetsenbord inleest en deze array \textsl{omgekeerd} afdrukt. Het aantal integers moet als getal van het toetsenbord worden ingelezen. De spil in deze opdracht is het gebruik van de de functie \lstinline|calloc|. Zie bijvoorbeeld \url{https://www.cplusplus.com/reference/cstdlib/calloc/}.
+
+\subsection{Dynamisch inlezen van een string}[C]
+Schrijf een programma dat met behulp van \textsl{dynamische geheugenallocatie} een string inleest. Eerst moet worden opgegeven hoe lang de string is. Vervolgens moet de string van het toetsenbord worden ingelezen. Overtollige karakters moeten worden genegeerd.
+
+\subsection{Dynamisch inlezen van een $n$ x $n$-matrix}[D]
+Schrijf een programma dat met behulp van \textsl{dynamische geheugenallocatie} een $n\times n$ matrix inleest. De grootte van $n$ moet worden ingelezen van het toetsenbord. Daarna moeten de elementen van de matrix worden ingelezen. Als alle elementen zijn ingelezen, moet de matrix op het beeldscherm worden afgedrukt. Gebruik pointers voor het vullen en afdrukken. De spil in deze opdracht is het gebruik van de de functie \lstinline|calloc|. Zie bijvoorbeeld \url{https://www.cplusplus.com/reference/cstdlib/calloc/}.
+
 
 \subsection{Onbeperkt}[E]
 Het inlezen van een regel tekst van het toetsenbord is niet echt lastig. Het wordt pas problematisch als er meer tekens worden ingelezen dan er in de string kunnen worden ondergebracht. Meestal declareren we een string met 100 karakters en hopen maar dat er niet meer karakters worden ingevoerd.
@@ -3063,7 +3232,7 @@ Schrijf een functie \lstinline|char *getoneline(int chuncksize)| dat een regel t
 \section{Bestanden}
 
 \subsection{Inleiding}
-Bij deze opdracht gaan we gebruik maken van argumenten op de command-line en openen, lezen, schrijven en sluiten van bestanden op de disk. Een volledige introductie over deze onderwerpen is te vinden op BlackBoard. Hieronder wordt slechts het afdrukken van de argumenten op de command-line besproken.
+Bij deze opdracht gaan we gebruik maken van argumenten op de command-line en openen, lezen, schrijven en sluiten van bestanden op de disk. Een volledige introductie over deze onderwerpen is te vinden in het boek ``De programmeertaal C'', hoofdstuk~9. Hieronder wordt slechts het afdrukken van de argumenten op de command-line besproken.
 
 Hieronder zie je een voorbeeld van een programma dat de opgegeven argumenten op het beeldscherm afdrukt. Het programma drukt eerst het aantal opgegeven argumenten af (via de variabele \lstinline|argc|) en drukt daarna een voor een de argumenten af (via de variabele \lstinline|argv|).
 Kopieer de code in een nieuw Visual Studio-project en start het programma vanaf de command-line.
@@ -3365,7 +3534,7 @@ In de onderstaande tabel is de moeilijkheidsgraad te vinden. A = eenvoudig, B = 
  
 \ExplSyntaxOn
 \begin{multicols}{4}
-\seq_use:Nn \g__diff_seq {}
+\seq_use:Nn \g__diff_tl {}
 \end{multicols}
 \ExplSyntaxOff
 
