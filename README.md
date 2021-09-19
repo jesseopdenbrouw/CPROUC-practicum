@@ -1,6 +1,8 @@
 # README #
 
-Dit zijn de master documenten van de practicumopdrachten bij het vak C Programmeren en Microcontrollers (CPROUC) van de opleiding Elektrotechniek aan De Haagse Hogeschool. De opdrachten volgende de hoofdstukken van het boek. De opdrachten zijn te ontwikkelen met elke compiler en gebruiken de command line interface.
+Dit zijn de master documenten van de practicumopdrachten bij het vak C Programmeren en Microcontrollers (CPROUC) van de opleiding Elektrotechniek aan De Haagse Hogeschool. De opdrachten volgen de hoofdstukken van het boek. De opdrachten zijn te ontwikkelen met elke compiler en gebruiken de command line interface.
+
+Voor het onderdeel Microcontrollers worden aparte opdrachten verstrekt.
 
 ### Practicumopdrachten ###
 
