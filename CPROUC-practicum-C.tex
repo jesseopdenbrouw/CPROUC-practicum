@@ -3464,7 +3464,11 @@ De tutorial is hiermee ten einde.
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.5]{005enterfilename}
+\begin{tikzpicture}
+\node[inner sep=0pt] (A) at (0,0) {
+\includegraphics[scale=0.5]{005enterfilename}};
+\draw[red,thick,rounded corners=5pt] (-4.75,-3.65) rectangle ++(1.5,0.5);
+\end{tikzpicture}
 \caption{Gegevens van het C-bestand invullen.}
 \label{fig:005enterfilename}
 \end{figure}
