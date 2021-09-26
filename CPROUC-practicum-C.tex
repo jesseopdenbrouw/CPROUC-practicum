@@ -215,7 +215,7 @@
 
 %% Set the extra <whatever> to colors...
 \lstset{
-  keywords=[10]{fib,leesCijfer,fflush,exit,malloc,free,realloc,catalan,faculteit,catalanRecursief,collatzSteps,max2,leesGetal,gemiddelde,kgv,ggd,leesEnBerekenSom,leesEnBerekenMod9,isprime,isisolatedprime,sinc,aantal_delers,reverse,strrev,is_palindroom,controleerNedEuroID,doorsnede,uniek,rlecompress,roll_dice,rand,stringreplace,scanf_s,getoneline,opvolgorde},  % User functions
+  keywords=[10]{fib,leesCijfer,fflush,exit,malloc,free,realloc,catalan,faculteit,catalanRecursief,collatzSteps,max2,leesGetal,gemiddelde,kgv,ggd,leesEnBerekenSom,leesEnBerekenMod9,isprime,isisolatedprime,sinc,aantal_delers,reverse,strrev,is_palindroom,controleerNedEuroID,doorsnede,uniek,rlecompress,roll_dice,rand,stringreplace,scanf_s,getoneline,opvolgorde,init,get,put},  % User functions
   keywords=[11]{punt,student},  % Typedef'd types
   keywords=[12]{},  % Macros
   keywords=[13]{},  % System header files
@@ -353,7 +353,7 @@ splittopskip = \topskip,%
   listing only,
   sharp corners,
   listing remove caption=true,
-  listing options={frame=none,aboveskip=6pt,belowskip=0pt},
+  listing options={frame=none,aboveskip=6pt,belowskip=0pt,numbers=none},
   attach boxed title to bottom center={yshift=-10pt},
   boxed title style={enhanced jigsaw, colback=white, boxrule=0pt,},
   fonttitle=\footnotesize,
@@ -2936,6 +2936,7 @@ int j = get();  // j == 56
 int k = get();  // k == 17
 \end{lstlisting}
 
+Let erop dat de queue vol kan zijn, dus een aanroep met \lstinline|put| moet dan een foutmelding geven. Let erop dat de queue leeg kan zijn, dus een aanroep met \lstinline|get| moet dan een foutmelding geven.
 Ontwerp de queue en de functies van de queue voor integers.
 
 \clearpage
@@ -2968,60 +2969,17 @@ Je kan de \textsl{members} van de structure (\lstinline|studentnummer|, \lstinli
 Het is ook mogelijk om een \textsl{array van structures} te definiëren, bijvoorbeeld alle studenten in een klas. We gebruiken hiervoor weer \lstinline|struct student| maar geven nu een array op. Met behulp van een \lstinline|for|-lus kan je langs alle elementen uit de de array ``lopen''.
 
 \begin{lstlisting}[caption=]
-struct student allestudenten[50];
+struct student klas[50];
 
 ... /* Hier moeten de gegevens worden ingevuld */
 
 /* Afdrukken van de gegevens */
 for (int i = 0; i < 50; i++) {
-    printf("%8d %20s %4.1f\n", allestudenten[i].studentnummer,
-                               allestudenten[i].achternaam,
-                               allestudenten[i].resultaat);
+    printf("%8d %20s %4.1f\n", klas[i].studentnummer,
+                               klas[i].achternaam,
+                               klas[i].resultaat);
 }
 \end{lstlisting}
-
-%\begin{lstlisting}[caption=]
-%struct student {
-%	int studentnummer;    // An integer
-%	char achternaam[21];  // A string of 20 characters
-%	double beoordeling;   // A double between 0.0 and 10.0
-%}
-%\end{lstlisting}
-%
-%Je kan nu een variabele aanmaken met:
-%
-%\begin{lstlisting}[caption=]
-%struct student piet, jan;
-%\end{lstlisting}
-%
-%en vervolgens informatie toekennen:
-%
-%\begin{lstlisting}[caption=]
-%jan.studentnummer = 21011009;          // an integer
-%strcpy(jan.achternaam, "Klaassen");    // no more than 20 characters!
-%jan.beoordeling = 7.3;                 // a double between 0.0 and 10.0
-%\end{lstlisting}
-%
-%Natuurlijk kan je de gegevens ook afdrukken:
-%
-%\begin{lstlisting}[caption=]
-%printf("%8d %20s %4.1f\n", jan.studentnummer, jan.achternaam, jan.beoordeling);
-%\end{lstlisting}
-%
-%Je kan de \textsl{members} van de structure (\lstinline|studentnummer|, \lstinline|achternaam|, \lstinline|beoordeling|) gewoon gebruiken als andere variabelen. Het is ook mogelijk om een array van structures te definiëren:
-%
-%\begin{lstlisting}[caption=]
-%struct student allestudenten[50];
-%\end{lstlisting}
-%
-%Met behulp van een \lstinline|for|-lus kan je langs alle elementen uit de de array ``lopen''.
-%
-%\begin{lstlisting}[caption=]
-%for (int i = 0; i < 50; i++) {
-%    printf("%8d %20s\n", allestudenten.studentnummer,
-%                         allestudenten.achternaam);
-%}
-%\end{lstlisting}
 
 \letop
 \clearpage
@@ -3225,7 +3183,7 @@ We hebben nu een stuk geheugen van 1024 bytes. Dat kan op een gegeven moment vol
 Let erop dat \lstinline|ptrnew| en \lstinline|ptr| naar twee verschillende adressen \textsl{kunnen} wijzen. Als het eerste geheugengebied niet kan worden uitgebreid dan wordt er een nieuw geheugengebied gealloceerd. De functie \lstinline|realloc()| kopieert dan de 1024 bytes van de eerste \lstinline|alloc()| naar het nieuwe geheugengebied en geeft de pointer \lstinline|ptr| vrij d.m.v.\@ \lstinline|free(ptr)|. Je kan meer vinden over \lstinline|malloc| en \lstinline|realloc| op 
 \url{http://www.cplusplus.com/reference/cstdlib/malloc/}.
 
-Schrijf een functie \lstinline|char *getoneline(int chuncksize)| dat een regel tekst van het toetsenbord inleest en in een stuk dynamisch gealloceerd geheugen plaatst. De parameter \lstinline|chunksize| is het aantal bytes waarmee het geheugen moet worden uitgebreid als een eerder gealloceerd stuk geheugen vol is. Nadat de regel is ingelezen (end-of-line-karakter wordt niet opgeslagen) geeft de functie de pointer terug naar het gealloceerde geheugen. Test je functie met een klein programma en varieer de waarde van \lstinline|chunksize|.
+Schrijf een functie \lstinline|char *getoneline(int chuncksize)| dat een regel tekst van het toetsenbord inleest en in een stuk dynamisch gealloceerd geheugen plaatst. De parameter \lstinline|chunksize| is het aantal bytes waarmee het geheugen moet worden uitgebreid als een eerder gealloceerd stuk geheugen vol is. Nadat de regel is ingelezen (end-of-line-karakter wordt niet opgeslagen, de null-byte \lstinline|'\0'| wel) geeft de functie de pointer terug naar het gealloceerde geheugen. Test je functie met een klein programma en varieer de waarde van \lstinline|chunksize|.
 
 
 \clearpage
@@ -3247,7 +3205,7 @@ int main(int argc, char *argv[]) {
     int i;
 
     printf("\nAantal argumenten: %d\n\n", argc);
-    for (i = 0; i<argc; i++) {
+    for (i = 0; i < argc; i++) {
         printf("Argument %d: %s\n", i, argv[i]);
     }
     return 0;
@@ -3255,18 +3213,6 @@ int main(int argc, char *argv[]) {
 \end{lstlisting}
 
 Als je dit programma draait vanuit een DOS-box\footnote{Zie \url{https://en.wikipedia.org/wiki/Win32_console}}, dan zie je het volgende op het scherm.
-
-%\begin{lstlisting}[language=,literate=]
-%D:\PROJECTS\CodeBlocks\myprog\bin\Debug>myprog.exe one two
-%
-%Aantal argumenten: 3
-%
-%Argument 0: myprog.exe
-%Argument 1: one
-%Argument 2: two
-%
-%D:\PROJECTS\CodeBlocks\myprog\bin\Debug>
-%\end{lstlisting}
 
 \begin{dosbox}
 D:\PROJECTS\VS\myprog\Debug>myprog.exe one two
@@ -3292,13 +3238,13 @@ Schrijf een programma dat de inhoud van een aantal tekstbestanden achter elkaar 
 er een helptekst worden afgedrukt en moet het programma stoppen. Er worden dan geen bestanden afgedrukt.
 
 \subsection{Zinslengte sorteren}[C]
-Schrijf een programma dat de regels in een tekstbestand inleest en op lengte sorteert. Het resultaat schrijf je naar het scherm en naar een uitvoerbestand. De namen van de tekstbestanden moeten als argumenten op de command-line*) meegegeven worden.
+Schrijf een programma dat de regels in een tekstbestand inleest en op lengte sorteert. Het resultaat schrijf je naar het scherm en naar een uitvoerbestand. De namen van de tekstbestanden moeten als argumenten op de command-line*) meegegeven worden. Ga ervan uit dat maximaal 1000 woorden kunnen worden opgeslagen.
 
 \subsection{Op alfabet sorteren}[C]
 Schrijf een programma dat de woorden in een tekstbestand op alfabet sorteert. Het resultaat schrijf je naar het scherm en naar een uitvoerbestand. De namen van de tekstbestanden moeten als argumenten op de command-line*) meegegeven worden.
 
 \subsection{Regelnummering}[A]
-Schrijf een programma dat een tekstbestand inleest (bijv.\@ een C-file) en hier regelnummers aan toevoegt en naar een uitvoertekstbestand schrijft. Lege regels worden niet genummerd, maar worden wel naar het uitvoerbestand geschreven. De regelnummers komen aan de linkerkant te staan. Gebruik een invoerbestand van minimaal 100 regels tekst en lever dit bestand ook in. De namen van de tekstbestanden moeten als argumenten op de command-line*) meegegeven worden.
+Schrijf een programma dat een tekstbestand inleest (bijv.\@ een C-bestand) en hier regelnummers aan toevoegt en naar een uitvoertekstbestand schrijft. Lege regels worden niet genummerd, maar worden wel naar het uitvoerbestand geschreven. De regelnummers komen aan de linkerkant te staan. Gebruik een invoerbestand van minimaal 100 regels tekst en lever dit bestand ook in. De namen van de tekstbestanden moeten als argumenten op de command-line*) meegegeven worden.
 
 \subsection{Getallen sorteren}[B]
 Schrijf een programma dat twee tekstbestanden met ongesorteerde integer getallen samenvoegt tot een derde gesorteerd bestand met integers. De namen van de tekstbestanden wordt als argument op de command-line*) meegegeven.
