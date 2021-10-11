@@ -215,8 +215,8 @@
 
 %% Set the extra <whatever> to colors...
 \lstset{
-  keywords=[10]{fib,leesCijfer,fflush,exit,malloc,free,realloc,catalan,faculteit,catalanRecursief,collatzSteps,max2,leesGetal,gemiddelde,kgv,ggd,leesEnBerekenSom,leesEnBerekenMod9,isprime,isisolatedprime,sinc,aantal_delers,reverse,strrev,is_palindroom,controleerNedEuroID,doorsnede,uniek,rlecompress,roll_dice,rand,stringreplace,scanf_s,getoneline,opvolgorde,init,get,put},  % User functions
-  keywords=[11]{punt,student},  % Typedef'd types
+  keywords=[10]{fib,leesCijfer,fflush,exit,malloc,free,realloc,catalan,faculteit,catalanRecursief,collatzSteps,max2,leesGetal,gemiddelde,kgv,ggd,leesEnBerekenSom,leesEnBerekenMod9,isprime,isisolatedprime,sinc,aantal_delers,reverse,strrev,is_palindroom,controleerNedEuroID,doorsnede,uniek,rlecompress,roll_dice,rand,stringreplace,scanf_s,getoneline,opvolgorde,init,get,put,maximum},  % User functions
+  keywords=[11]{punt,student_struct},  % Typedef'd types
   keywords=[12]{},  % Macros
   keywords=[13]{},  % System header files
 }
@@ -1533,7 +1533,9 @@ a_2x + b_2y = c_2
 \end{split}
 \end{equation*}
 
-Schrijf een programma dat de gegevens $a_1$, $b_1$, $c_1$, $a_2$, $b_2$ en $c_2$ van het toetsenbord inleest en vervolgens het stelsel oplost. Hint: bereken eerst $d=a_1b_2-a_2b_1$. Als $d=0$ dan is er geen oplossing voor dit stelsel. Als $d\neq0$, kan $x$ en $y$ berekenen met:
+waarbij $a_1$, $b_1$, $c_1$, $a_2$, $b_2$ en $c_2$ constanten zijn (geheel of floating point).
+
+Schrijf een programma dat de gegevens $a_1$, $b_1$, $c_1$, $a_2$, $b_2$ en $c_2$ van het toetsenbord inleest en vervolgens het stelsel oplost. Hint: bereken eerst $d=a_1b_2-a_2b_1$. Als $d=0$ dan is er geen oplossing voor dit stelsel. Als $d\neq0$, kunnen $x$ en $y$ berekend met:
 
 \begin{equation*}
 \begin{split}
@@ -2940,40 +2942,43 @@ Ontwerp de queue en de functies van de queue voor integers.
 
 
 \subsection{Inleiding}
+\label{sec:struct_inleiding}
 Een structure in een handige manier om bij elkaar behorende gegevens te gebruiken onder één gemeenschappelijke noemer. Het voordeel van een structure is dat het als geheel kan worden meegegeven als een argument in een functie en dat een functie een complete structure kan retourneren. Daarnaast is het makkelijk om een array van structures te maken zodat je dataverwerking kan toepassen
 
 Als voorbeeld zie je hier een structure die toetsresultaten kan opslaan. Een toetsresultaat is gekoppeld aan een student. Van de student wordt het studentnummer en de achternaam, samen met het resultaat in een structure opgeslagen.
 
 \begin{lstlisting}[caption=]
-struct student {
-	int studentnummer;    // An integer
-	char achternaam[21];  // A string of 20 characters
+struct student_struct {
+	int idcode;           // An integer
+	char achternaam[30];  // A string of 29 characters
+    char klas[10];        // A string of 9 characters
 	double resultaat;     // A double between 0.0 and 10.0
 };
 
-struct student jan;
+struct student_struct jan;
 
-jan.studentnummer = 21011009;          // an integer
-strcpy(jan.achternaam, "Klaassen");    // no more than 20 characters!
+jan.idcode = 21011009;                 // an integer
+strcpy(jan.achternaam, "Klaassen");    // no more than 29 characters!
+strcpy(jan.klas, "ep13");              // no more than 9 characters!
 jan.resultaat = 7.3;                   // a double between 0.0 and 10.0
 
-printf("%8d %20s %4.1f\n", jan.studentnummer, jan.achternaam, jan.resultaat);
+printf("%8d %-19s %-9s %4.1f\n", jan.idcode, jan.achternaam, jan.klas, jan.resultaat);
 \end{lstlisting}
 
-Je kan de \textsl{members} van de structure (\lstinline|studentnummer|, \lstinline|achternaam|, \lstinline|resultaat|) gewoon gebruiken als andere variabelen. Dit is te zien in de toekenningen en in de \lstinline|printf|-regel.
+Je kan de \textsl{members} van de structure (\lstinline|idcode|, \lstinline|achternaam|, \lstinline|resultaat|) gewoon gebruiken als andere variabelen. Dit is te zien in de toekenningen en in de \lstinline|printf|-regel.
 
-Het is ook mogelijk om een \textsl{array van structures} te definiëren, bijvoorbeeld alle studenten in een klas. We gebruiken hiervoor weer \lstinline|struct student| maar geven nu een array op. Met behulp van een \lstinline|for|-lus kan je langs alle elementen uit de de array ``lopen''.
+Het is ook mogelijk om een \textsl{array van structures} te definiëren, bijvoorbeeld alle studenten in een klas. We gebruiken hiervoor weer \lstinline|struct student_struct| maar geven nu een array op. Met behulp van een \lstinline|for|-lus kan je langs alle elementen uit de de array ``lopen''.
 
 \begin{lstlisting}[caption=]
-struct student klas[50];
+struct student_struct klas[50];
 
 ... /* Hier moeten de gegevens worden ingevuld */
 
 /* Afdrukken van de gegevens */
 for (int i = 0; i < 50; i++) {
-    printf("%8d %20s %4.1f\n", klas[i].studentnummer,
-                               klas[i].achternaam,
-                               klas[i].resultaat);
+    printf("%d %s %f\n", klas[i].idcode,
+                         klas[i].achternaam,
+                         klas[i].resultaat);
 }
 \end{lstlisting}
 
@@ -3033,6 +3038,22 @@ Schrijf een functie \lstinline|lees_tijd| die de uren, minuten en seconden inlee
 \subsection{Seconden naar tijd}[C]
 Schrijf een programma die het aantal seconden inleest en omzet naar uren, minuten en seconden. Dit omzetten moet gedaan worden in een functie. De functie krijgt het aantal seconden mee en geeft de uren, minuten en seconden in een structure terug. Deze structure is te vinden in opdracht~\ref{opd:structtijd}. Schrijf een hoofdprogramma om de functie te testen.
  
+ 
+\subsection{Tijdsverschil}
+Schrijf een programma dat twee tijden inleest (in uren, minuten en seconden) en het verschil tussen deze tijden (in seconden) afdrukt. Gebruik de structure uit opdracht~\ref{opd:structtijd}. 
+ 
+\subsection{Studenten}[B]
+\label{sec:struct_stud}
+In de inleiding (paragraaf~\ref{sec:struct_inleiding}) wordt de structure \lstinline|student_struct| beschreven. Hiermee kunnen we gegeven van studenten en het resultaat van een toets opslaan. Gebruik deze structure.
+
+Schrijf een programma dat de gegevens van 5 van deze studenten inleest en afdrukt. Gebruik hiervoor een functie \lstinline|lees_student| en \lstinline|print_student|. Gebruik Call by Value voor argument/parameter-overdracht en returnwaarde. Bij het afdrukken moeten de gegevens netjes onder elkaar worden afgedrukt, alsof het in kolommen is afgedrukt.
+
+
+\subsection{Studenten again}[c]
+Als opdracht~\ref{sec:struct_stud} maar realiseer nu ook een functie \lstinline|maximum| die het maximum behaalde resultaat retourneert. Gebruik de functie in een array van structures van studenten.
+
+
+
 
 
 \clearpage
