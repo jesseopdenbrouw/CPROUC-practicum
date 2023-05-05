@@ -5,7 +5,7 @@
 %%
 %%   CPROUC-practicum-C - Exercises for programming in C
 %%
-%%   (c) 2021  --  The Hague University of Applied Sciences (THUAS)
+%%   (c) 2023  --  The Hague University of Applied Sciences (THUAS)
 %%                 Department of Electrical Engineering
 %%
 %%   Please mail your comments to: J.E.J.opdenBrouw@hhs.nl
@@ -22,7 +22,7 @@
 \documentclass[a4paper,10pt,fleqn,twoside]{article}
 
 %% The current version
-\def\version{0.9}
+\def\version{0.92}
 
 %% Print difficulty in front of the exercises
 %% Also prints a table of difficulties at the end
@@ -194,7 +194,7 @@
   keywordstyle=[3]{\color{function}},
   %% Trick: system header files, the < and > are not colorized
   alsoletter={.},
-  keywords=[4]{assert.h,complex.h,ctype.h,errno.h,fenv.h,float.h,inttypes.h,iso646.h,limits.h,locale.h,math.h,setjmp.h,signal.h,stdalign.h,stdarg.h,stdatomic.h,stdbool.h,stddef.h,stdint.h,stdio.h,stdlib.h,stdnoreturn.h,string.h,tgmath.h,threads.h,time.h,uchar.h,wchar.h,wctype.h},
+  keywords=[4]{assert.h,complex.h,ctype.h,errno.h,fenv.h,float.h,inttypes.h,iso646.h,limits.h,locale.h,malloc.h,math.h,setjmp.h,signal.h,stdalign.h,stdarg.h,stdatomic.h,stdbool.h,stddef.h,stdint.h,stdio.h,stdlib.h,stdnoreturn.h,string.h,tgmath.h,threads.h,time.h,uchar.h,wchar.h,wctype.h},
   keywordstyle=[4]{\color{string}},
   %% System defined type, short list from stdint.h
   keywords=[5]{int8_t,int16_t,int32_t,int64_t,uint8_t,uint16_t,uint32_t,uint64_t,FILE,size_t,div_t,ldiv_t,va_list,clock_t,time_t},
@@ -3116,7 +3116,7 @@ Schrijf een functie die een array van \textsl{variabele} lengte gevuld met integ
 Schrijf een functie die een meegegeven string (dus als argument) van willekeurige lengte achterstevoren afdrukt. Maak gebruik van een pointer. De string mag niet aangepast worden in de functie. Test de functie met een hoofdprogramma.
 
 \subsection{Woorden tellen}[B]
-Schrijf een functie die in een meegegeven string (dus als argument) van willekeurige lengte het aantal woorden telt. De woorden in de string worden gescheiden door spaties. Vergeet de woorden aan het begin en einde van de string mee te tellen. Het getelde aantal woorden wordt als returnwaarde teruggegeven. Maak gebruik van pointers. Test de functie met een hoofdprogramma.
+Schrijf een functie die in een meegegeven string (dus als argument) van willekeurige lengte het aantal woorden telt. De woorden in de string worden gescheiden door spaties. Vergeet niet de woorden aan het begin en einde van de string mee te tellen. Het getelde aantal woorden wordt als returnwaarde teruggegeven. Maak gebruik van pointers. Test de functie met een hoofdprogramma.
 
 \subsection{Array van integers omkeren}[A]
 Schrijf een functie die een meegegeven array van integers en een meegegeven lengte van de array in elementen, omkeert. Het eerste en laatste element worden dus verwisseld, het tweede en het een-na-laatste element worden verwisseld, enzovoorts. Zo ook met de andere elementen. Maak gebruik van pointers. Test de functie met een hoofdprogramma.
