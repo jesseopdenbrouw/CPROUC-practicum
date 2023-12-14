@@ -22,7 +22,7 @@
 \documentclass[a4paper,10pt,fleqn,twoside]{article}
 
 %% The current version
-\def\version{0.92}
+\def\version{0.93}
 
 %% Print difficulty in front of the exercises
 %% Also prints a table of difficulties at the end
@@ -3267,15 +3267,24 @@ Schrijf een programma dat een tekstbestand inleest (bijv.\@ een C-bestand) en hi
 Schrijf een programma dat twee tekstbestanden met ongesorteerde integer getallen samenvoegt tot een derde gesorteerd bestand met integers. De namen van de tekstbestanden wordt als argument op de command-line*) meegegeven.
 
 \subsection{Uitgeschreven nummers sorteren}[C]
-In een tekstbestand staat een willekeurige rij met nummers van nul tot en met twintig. De nummers staan echter niet op volgorde en zijn languit (dus als woorden) geschreven. Sorteer alle woorden (nummers) op numerieke volgorde van hoog naar laag en schrijf het resultaat (aantal keer) naar een nieuw bestand. Het resulterende bestand kan er dus zo uitzien:
+In een tekstbestand staat een willekeurige rij met nummers van nul tot en met twintig. De nummers staan echter niet op volgorde en zijn languit (dus als woorden) geschreven. Sorteer alle woorden (nummers) op numerieke volgorde van hoog naar laag en schrijf het resultaat (aantal keer) naar een nieuw bestand. Het invoerbestand kan er als volgt uitzien:
 
 \begin{lstlisting}[caption=]
-9 Twintig
-15 Negentien
-3 Achttien
-6 Zeventien
-11 Zestien
-8 Vijftien
+Twintig
+Negentien
+Achttien
+Zeventien
+Zestien
+Vijftien
+\end{lstlisting}
+
+Het resulterende bestand kan er dus zo uitzien:
+
+\begin{lstlisting}[caption=]
+1 Vijftien
+3 Zestien
+20 Zeventien
+5 Achttien
 \end{lstlisting}
 
 De namen van de tekstbestanden wordt als argument op de command-line*) meegegeven.
