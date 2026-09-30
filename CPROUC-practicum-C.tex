@@ -5,7 +5,7 @@
 %%
 %%   CPROUC-practicum-C - Exercises for programming in C
 %%
-%%   (c) 2023  --  The Hague University of Applied Sciences (THUAS)
+%%   (c) 2026  --  The Hague University of Applied Sciences (THUAS)
 %%                 Department of Electrical Engineering
 %%
 %%   Please mail your comments to: J.E.J.opdenBrouw@hhs.nl
@@ -22,7 +22,7 @@
 \documentclass[a4paper,10pt,fleqn,twoside]{article}
 
 %% The current version
-\def\version{0.93}
+\def\version{0.96}
 
 %% Print difficulty in front of the exercises
 %% Also prints a table of difficulties at the end
@@ -291,7 +291,24 @@ innertopmargin = \topskip,%
 splittopskip = \topskip,%
 ]
 \begin{tabularx}{\linewidth}{m{1cm}X}
-\Large\leftpointright & Let op! Je moet één van de onderstaande opdrachten maken. De practicumdocent bepaalt welke opdracht je moet maken.
+\Large\leftpointright & Let op! Je moet twee van de onderstaande opdrachten maken. De practicumdocent bepaalt welke opdrachten je moet maken.
+\end{tabularx}
+\end{mdframed}
+\vspace{4ex plus 1ex minus 1ex}
+}
+\newcommand{\letopeen}{%
+\vspace{4ex plus 1ex minus 1ex}
+\begin{mdframed}[outerlinewidth = 1 ,%
+roundcorner = 4 pt,%
+leftmargin = 40,%
+rightmargin = 40,%
+backgroundcolor = yellow!40,%
+outerlinecolor = red!70!black,%
+innertopmargin = \topskip,%
+splittopskip = \topskip,%
+]
+\begin{tabularx}{\linewidth}{m{1cm}X}
+\Large\leftpointright & Let op! Je moet \'e\'en van de onderstaande opdrachten maken. De practicumdocent bepaalt welke opdracht je moet maken.
 \end{tabularx}
 \end{mdframed}
 \vspace{4ex plus 1ex minus 1ex}
@@ -1604,7 +1621,7 @@ int fib(int n) {
 Schrijf een functie die twee argumenten meekrijgt en de vermenigvuldiging van deze twee argumenten teruggeeft. Schrijf een hoofdprogramma om de functie te testen.
 
 \subsection{Vermenigvuldigen en delen}[A]
-Schrijf een functie die drie argumenten meekrijgen en het resultaat van de vermenigvuldiging van de eerste twee argumenten gedeeld door het derde argument teruggeeft. Let op dat delen door 0 niet kan. Schrijf een hoofdprogramma om de functie te testen.
+Schrijf een functie die drie argumenten meekrijgen en het resultaat van de vermenigvuldiging van de eerste twee argumenten gedeeld door het derde argument teruggeeft. Let op dat delen door 0 niet kan. Zorg dat het programma hier goed mee omgaat. Schrijf een hoofdprogramma om de functie te testen.
 
 \subsection{Catalan-getal (iteratief)}[B]
 De Catalan-getallen zijn natuurlijke getallen die voorkomen in diverse telproblemen. Het $n^e$ Catalan-getal wordt weergegeven als $C_n$. Bijvoorbeeld: het aantal manieren waarop je $n$ paren haakjes correct kunt opschrijven is gelijk aan $C_n$. Zie voor verdere informatie: \url{https://en.wikipedia.org/wiki/Catalan_number}.
@@ -2503,7 +2520,7 @@ Schrijf een programma dat de getallen $a$ en $b$, beide geheel een groter dan nu
 
 
 \subsection{Wortel schieten}[A]
-De Babyloniërs hebben heel lang geleden een methode ontwikkeld voor het vinden van de wortel van een positief getal (of nul, da’s niet zo moeilijk). Het is gebaseerd op het herhaald doorrekenen van een eenvoudige functiebeschrijving:
+Heron van Alexandri\"e heeft heel lang geleden een methode ontwikkeld voor het vinden van de wortel van een positief getal (of nul, da’s niet zo moeilijk). Het is gebaseerd op het herhaald doorrekenen van een eenvoudige functiebeschrijving:
 
 \begin{align*}
 X_0 &= S \\
@@ -2712,8 +2729,8 @@ Verzin zelf testdata. Zorg dat je deze testdata bij de hand hebt tijdens het nak
 Schrijf een programma dat twee arrays van integers van gelijke lengte vergelijkt. De arrays zijn identiek (gelijk) als elk element van de eerste array overeenkomt met het element op dezelfde positie in de tweede array.
 
 \begin{lstlisting}[caption=]
-int rij1 = { 1, 7, 5, 3};
-int rij2 = { 1, 7, 5, 3};
+int rij1[] = { 1, 7, 5, 3};
+int rij2[] = { 1, 7, 5, 3};
 \end{lstlisting}
 
 zijn identiek omdat de lengte gelijk is en omdat elk element overeenkomt.
@@ -3200,7 +3217,7 @@ We hebben nu een stuk geheugen van 1024 bytes. Dat kan op een gegeven moment vol
 Let erop dat \lstinline|ptrnew| en \lstinline|ptr| naar twee verschillende adressen \textsl{kunnen} wijzen. Als het eerste geheugengebied niet kan worden uitgebreid dan wordt er een nieuw geheugengebied gealloceerd. De functie \lstinline|realloc()| kopieert dan de 1024 bytes van de eerste \lstinline|alloc()| naar het nieuwe geheugengebied en geeft de pointer \lstinline|ptr| vrij d.m.v.\@ \lstinline|free(ptr)|. Je kan meer vinden over \lstinline|malloc| en \lstinline|realloc| op 
 \url{http://www.cplusplus.com/reference/cstdlib/malloc/}.
 
-Schrijf een functie \lstinline|char *getoneline(int chuncksize)| dat een regel tekst van het toetsenbord inleest en in een stuk dynamisch gealloceerd geheugen plaatst. De parameter \lstinline|chunksize| is het aantal bytes waarmee het geheugen moet worden uitgebreid als een eerder gealloceerd stuk geheugen vol is. Nadat de regel is ingelezen (end-of-line-karakter wordt niet opgeslagen, de null-byte \lstinline|'\0'| wel) geeft de functie de pointer terug naar het gealloceerde geheugen. Test je functie met een klein programma en varieer de waarde van \lstinline|chunksize|.
+Schrijf een functie \lstinline|char *getoneline(int chuncksize)| die een regel tekst van het toetsenbord inleest en in een stuk dynamisch gealloceerd geheugen plaatst. De parameter \lstinline|chunksize| is het aantal bytes waarmee het geheugen moet worden uitgebreid als een eerder gealloceerd stuk geheugen vol is. Nadat de regel is ingelezen (end-of-line-karakter wordt niet opgeslagen, de null-byte \lstinline|'\0'| wel) geeft de functie de pointer terug naar het gealloceerde geheugen. Test je functie met een klein programma en varieer de waarde van \lstinline|chunksize|.
 
 
 \clearpage
@@ -3244,7 +3261,7 @@ D:\PROJECTS\VS\myprog\Debug>
 \end{dosbox}
 
 \leesvoetnoot
-\letop
+\letopeen
 \clearpage
 
 \subsection{More}[A]
@@ -3361,16 +3378,16 @@ We behandelen in deze bijlage het opzetten van een project in Visual Studio 2019
 
 Download Visual Studio Community via de link:
 
-\hspace*{1em}\url{https://visualstudio.microsoft.com/vs/}
+\url{https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false}
 
-\textbf{Let op:} download de Community-editie. Zie figuur~\ref{fig:000Adownloadcommunity}.
-
-\begin{figure}[H]
-\centering
-\includegraphics[scale=0.3]{000Adownloadcommunity}
-\caption{Downloaden van Community-editie.}
-\label{fig:000Adownloadcommunity}
-\end{figure}
+%\textbf{Let op:} download de Community-editie. Zie figuur~\ref{fig:000Adownloadcommunity}.
+%
+%\begin{figure}[H]
+%\centering
+%\includegraphics[scale=0.3]{000Adownloadcommunity}
+%\caption{Downloaden van Community-editie.}
+%\label{fig:000Adownloadcommunity}
+%\end{figure}
 
 Er wordt nu een kleine installer gedownload. Start daarna de installer. Visual Studio is een groot programma, dus het kost nogal wat tijd om Visual Studio te installeren.
 
@@ -3467,7 +3484,7 @@ De tutorial is hiermee ten einde.
 In deze bijlage zijn instructies te vinden voor het installeren en gebruiken van Code::Blocks 20.03. De instructies zijn als volgt:
 
 \begin{itemize}
-\item Download Code::Blocks van \url{https://sourceforge.net/projects/codeblocks/files/Binaries/20.03/Windows/codeblocks-20.03mingw-setup.exe/download} (let erop dat in de naam de term \texttt{mingw} staat)
+\item Download Code::Blocks van \url{https://sourceforge.net/projects/codeblocks/files/Binaries/25.03/Windows/codeblocks-25.03mingw-setup.exe/download} (let erop dat in de naam de term \texttt{mingw} staat)
 \item Installeer vervolgens Code::Blocks door de gedownloade executable te runnen. (Bij installatie continu op \texttt{next} drukken)
 \item Bij het opstarten van Code::Blocks wordt er gevraagd naar de compiler die gebruikt zal gaan worden. Als het goed is, is er al \'e\'en geselecteerd en hoef je alleen op \texttt{OK} te drukken.
 \item Nu kun je een project aanmaken en code gaan compileren en runnen:
